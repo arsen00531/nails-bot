@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+
+  bot:
+    container_name: nick-bot
+    build:
+      context: .
+
+    restart: always
+    env_file:
+      - .env
+
+    command: python3 -m bot
