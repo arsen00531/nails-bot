@@ -11,4 +11,6 @@ class User(Base):
     id = Column(BigInteger)
     username = Column(String)
     fullname = Column(String)
+    phone = Column(String)
+    company_id = Column(BigInteger, default=None)
     created_at = Column(DateTime, default=datetime.now())

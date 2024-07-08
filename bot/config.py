@@ -14,7 +14,49 @@ POSTGRESQL_USER = env.str("POSTGRESQL_USER")
 POSTGRESQL_PASSWORD = env.str("POSTGRESQL_PASSWORD")
 POSTGRESQL_DBNAME = env.str("POSTGRESQL_DBNAME")
 
-APP_URL = env.str("APP_URL")
+YCLIENTS_BEARER = env.str("YCLIENTS_BEARER")
+YCLIENTS_USER = env.str("YCLIENTS_USER")
 
 DIRNAME = os.path.dirname(__file__)
 os.chdir(f"{DIRNAME}//..")
+
+SALONS = [
+    {
+        'lat': 55.6638662,
+        'lon': 37.4861075,
+        "address": "Москва, Проспект Вернадского, 105к4",
+        "metro_stations": ["Юго-Западная",]
+    },
+    {
+        'lat': 55.8023694,
+        'lon': 37.5940776,
+        "address": "Москва, ул. Складочная, 1 стр31",
+        "metro_stations": ["Дмитровская", "Савеловская"]
+    }
+]
+
+EMOJI_NUMS = [
+    "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣",
+]
+
+MONTHS = {
+    1: "января",
+    2: "февраля",
+    3: "марта",
+    4: "апреля",
+    5: "мая",
+    6: "июня",
+    7: "июля",
+    8: "августа",
+    9: "сентября",
+    10: "октября",
+    11: "ноября",
+    12: "декабря"
+}
+
+
+YCLIENTS_HEADERS = {
+    "Authorization": f"Bearer {YCLIENTS_BEARER}, User {YCLIENTS_USER}",
+    "Content-Type":  "application/json",
+    "Accept": "application/vnd.api.v2+json"
+}

@@ -2,7 +2,6 @@ from aiogram.fsm.state import StatesGroup, State
 
 
 class BroadcastStates(StatesGroup):
-    set_user_group = State()
-    get_campaign_url = State()
-    pre_broadcast = State()
+    get_msg = State()
     broadcast = State()
+    get_company_id = State()

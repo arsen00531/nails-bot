@@ -1,0 +1,97 @@
+import asyncio
+import re
+
+from aiogram import types, Dispatcher
+from aiogram.filters import CommandStart, Command
+from bot import keyboards, config, filters
+from aiogram.fsm.context import FSMContext
+from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton, ReplyKeyboardBuilder, KeyboardButton
+import tools
+from sqlalchemy import select
+from bot import models
+from datetime import datetime
+from aiogram import F
+from bot.services.haversine_formula import get_nearest_location
+import typing
+from bot import states
+
+
+async def support_handler(callback: types.CallbackQuery, state: FSMContext, session):
+    await callback.answer()
+    async with session() as open_session:
+        user: models.sql.User = await open_session.execute(select(
+            models.sql.User).filter_by(id=callback.from_user.id))
+        user = user.scalars().first()
+
+        if user.company_id:
+            admin: models.sql.Admin = await open_session.execute(select(
+                models.sql.Admin).filter_by(company_id=user.company_id))
+            admin = admin.scalars().first()
+
+    if not user.company_id:
+        return await callback.message.answer(
+            text="Не можем определить к какому салону вы относитесь."
+                 " Сделайте запись, чтобы связаться с нужным салоном"
+        )
+
+    keyboard = InlineKeyboardBuilder()
+    btn = InlineKeyboardButton(
+        text="◀️ Назад",
+        callback_data="back_to_main"
+    )
+    keyboard.row(btn)
+
+    await callback.message.answer(
+        text="Чат запущен!\n\n"
+             "Введите сообщение для поддержки.",
+        reply_markup=keyboard.as_markup()
+    )
+    await state.update_data(chat_id=admin.id)
+    await state.set_state(states.AdminSupportStates.get_msg)
+
+
+async def chat_answer_handler(callback: types.CallbackQuery, state: FSMContext, session):
+    state_data = await state.get_data()
+    await state.clear()
+
+    chat_id = int(re.findall(r"chat_answer_to_(.+)", callback.data)[0])
+
+    await callback.message.answer(
+        text="Введите ответ",
+    )
+    await state.update_data(chat_id=chat_id)
+    await state.set_state(states.AdminSupportStates.get_msg)
+
+
+async def get_msg_handler(message: types.Message, state: FSMContext, session):
+    state_data = await state.get_data()
+    await state.clear()
+
+    keyboard = InlineKeyboardBuilder()
+    btn = InlineKeyboardButton(
+        text="Ответить",
+        callback_data=f"chat_answer_to_{message.from_user.id}"
+    )
+    keyboard.row(btn)
+
+    await message.bot.send_message(
+        chat_id=state_data["chat_id"],
+        text=f"Сообщение от {message.from_user.full_name[:30]} (<code>{message.from_user.id}</code>)",
+        parse_mode="HTML"
+    )
+    await asyncio.sleep(0.5)
+    await message.send_copy(
+        chat_id=state_data["chat_id"],
+        reply_markup=keyboard.as_markup()
+    )
+    await message.answer(
+        text="Сообщение отправлено, ожидайте ответа."
+    )
+
+
+def setup(dp: Dispatcher):
+    dp.callback_query.register(support_handler, F.data == "admin_support")
+    dp.callback_query.register(chat_answer_handler, F.data.regexp("chat_answer_to_(.+)"))
+    dp.message.register(get_msg_handler, states.AdminSupportStates.get_msg)
+
+

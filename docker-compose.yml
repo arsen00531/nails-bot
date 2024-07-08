@@ -1,9 +1,6 @@
-version: '3.8'
 
 services:
-
   bot:
-    container_name: nick-bot
     build:
       context: .
 

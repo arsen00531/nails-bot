@@ -3,10 +3,12 @@ from . import add_admin
 from . import stats
 from . import cancel
 from . import broadcast
+from . import panel
+from . import add_yandex_company
 
 
 def setup(dp: Dispatcher):
     for module in (
-            cancel, add_admin, stats, broadcast
+            cancel, add_admin, stats, broadcast, panel, add_yandex_company
     ):
         module.setup(dp)

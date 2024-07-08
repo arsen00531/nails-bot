@@ -4,12 +4,12 @@ from datetime import datetime
 Base = declarative_base()
 
 
-class Admin(Base):
-    __tablename__ = "admin"
+class YandexCompany(Base):
+    __tablename__ = "yandex_company"
 
     index = Column(Integer, primary_key=True)
-    id = Column(BigInteger)
     company_id = Column(BigInteger)
+    url = Column(String)
 
 
 

@@ -1,69 +1,61 @@
-import json
+# import json
+#
+# import requests
+#
+#
+# from geopy.geocoders import Nominatim #Подключаем библиотеку
+# geolocator = Nominatim(user_agent="Tester") #Указываем название приложения (так нужно, да)
+# adress = str(input('Введите адрес: \n')) #Получаем интересующий нас адрес
+# location = geolocator.geocode(adress) #Создаем переменную, которая состоит из нужного нам адреса
+# print(location) #Выводим результат: адрес в полном виде
+# print(location.latitude, location.longitude) #И теперь выводим GPS-координаты нужного нам адреса
 
 import requests
+# r = requests.get("https://api.yclients.com/api/v1/companies?my=1&showBookforms=1", headers=headers)
+#
+# salons: list = r.json()["data"]
+# salon_1 = salons[0]
+# print(salon_1)
 
-headers = {
-    "Authorization": f"Bearer twge3ua3jy5dbmhzjw2c, User 1394bee7b3f920428e0ea577766c948f",
-    "Accept": "application/vnd.api.v2+json"
-}
 
-data = {
-    "login": "dmitriy.tsvetkov.20@gmail.com",
-    "password": "nZhqhQg9"
-}
+# r = requests.get(f"https://api.yclients.com/api/v1/company/{salon_1}?showBookforms=1", headers=headers)
+# print(r.json()["data"])
+# titles = [i["title"] for i in salons]
+# addresses = [i["address"] for i in salons]
+# print(titles, addresses)
 
-client_1 = {
+#
+# import emoji
+#
+# emojis = [emoji.emojize(f'{i}\uFE0F\u20E3') for i in range(1, 13)]  # Создаем список с эмодзи от 1️⃣ до 🔟
+#
+# emoji_dict = {emoji: index for index, emoji in enumerate(emojis)}  # Создаем словарь с ключами, где ключ - эмодзи, а значение - индекс
+#
+# print(emoji_dict)
+#
+# pressed_emoji = "11️⃣"  # Получаем эмодзи при нажатии кнопки
+# index = emoji_dict.get(pressed_emoji)  # Получаем соответствующий индекс из словаря
+#
+# # print(index)
+#
+# print(len("2️⃣"))
+# print("2️⃣2️⃣"[:3])
+# print("2️⃣"[:2])
+from datetime import datetime
 
-    "phone": "79000000000",
-    "fullname": "ДИМА",
-    "email": "d@yclients.com",
-    "code": "38829",
-    "comment": "тестовая запись!",
-    "type": "mobile",
-    "notify_by_sms": 6,
-    "notify_by_email": 24,
-    "api_id": "777",
-    "custom_fields": {
-        "my_client_custom_field": 789,
-        "some_another_client_field": [
-            "first client value",
-            "next client value"
-        ]
-    },
-    "appointments": [
-        {
-            "id": 1,
-            "services": [
-                331
-            ],
-            "staff_id": 6544,
-            "datetime": 1443517200,
-            "custom_fields": {
-                "my_custom_field": 123,
-                "some_another_field": [
-                    "first value",
-                    "next value"
-                ]
-            }
-        },
-        {
-            "id": 2,
-            "services": [
-                99055
-            ],
-            "staff_id": 6544,
-            "datetime": 1443614400,
-            "custom_fields": {
-                "my_custom_field": 456,
-                "some_another_field": [
-                    "next value",
-                    "last value"
-                ]
-            }
-        }
-    ]
-}
+#
+# r = requests.get(f"https://yclients.com/c/6hReb/SJFsJ/")
+# print(r.url)
+#
+#
+# record_datetime = "08.07 10:00"
+# datetime_now = "08.07 9:50"
+# last_notification = None
+# target_datetime = "00:30"
+#
+# "record_datetime - datetime_now = 7:00"
+#
+# last_notification = "08.07 6:00"
+# (record_datetime - last_notification) >= target_datetime
 
-r = requests.post("https://api.yclients.com/api/v1/book_record/1048533", headers=headers, json=client_1)
 
-print(r.json())
