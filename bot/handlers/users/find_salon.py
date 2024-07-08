@@ -32,7 +32,7 @@ async def start_handler(message: types.Message, state: FSMContext):
 async def get_data_handler(message: types.Message, state: FSMContext):
     await state.clear()
     r = requests.get(
-        "https://api.yclients.com/api/v1/companies?my=1&showBookforms=1",
+        "https://api.yclients.com/api/v1/companies?my=1&showBookforms=1?count=100",
         headers=config.YCLIENTS_HEADERS
     )
 
