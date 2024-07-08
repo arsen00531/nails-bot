@@ -44,17 +44,17 @@ async def start_handler(message: types.Message, command: CommandObject, session)
             reply_markup=keyboard
         )
 
-    keyboard = InlineKeyboardBuilder()
-    btn = InlineKeyboardButton(
-        text="Написать в поддержку",
-        callback_data="admin_support"
-    )
-    keyboard.row(btn)
-
-    await message.answer(
-        text="Test",
-        reply_markup=keyboard.as_markup()
-    )
+    # keyboard = InlineKeyboardBuilder()
+    # btn = InlineKeyboardButton(
+    #     text="Написать в поддержку",
+    #     callback_data="admin_support"
+    # )
+    # keyboard.row(btn)
+    #
+    # await message.answer(
+    #     text="Test",
+    #     reply_markup=keyboard.as_markup()
+    # )
 
 
 def setup(dp: Dispatcher):
