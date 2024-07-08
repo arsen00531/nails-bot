@@ -10,13 +10,10 @@ async def set_bot_commands(bot: Bot):
         ]
     )
 
-    for admin_id in config.BOT_ADMINS:
-        await bot.set_my_commands(
-            [
-                BotCommand(command="start", description="Запустить"),
-                BotCommand(command="broadcast", description="Рассылка"),
-                BotCommand(command="addadmin", description="Добавить админа"),
-                BotCommand(command="deleteadmin", description="Удалить админа"),
-            ],
-            scope=BotCommandScopeChat(chat_id=admin_id)
-        )
+    # for admin_id in config.BOT_ADMINS:
+    #     await bot.set_my_commands(
+    #         [
+    #             BotCommand(command="start", description="Запустить"),
+    #         ],
+    #         scope=BotCommandScopeChat(chat_id=admin_id)
+    #     )
