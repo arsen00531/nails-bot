@@ -32,7 +32,7 @@ async def send_message(user_id, record, bot: Bot, session):
     )
     keyboard.row(btn)
     btn = InlineKeyboardButton(
-        text="Написать в поддержку",
+        text="Связаться с администратором",
         callback_data="admin_support"
     )
     keyboard.row(btn)

@@ -45,7 +45,7 @@ async def start_handler(callback: types.CallbackQuery, session):
 
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
-        text="Написать в поддержку",
+        text="Связаться с администратором",
         callback_data="admin_support"
     )
     keyboard.row(btn)
