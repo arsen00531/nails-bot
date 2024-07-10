@@ -32,7 +32,7 @@ async def main():
     scheduler.add_job(
         func=notify_sender,
         trigger="interval",
-        seconds=5,
+        seconds=30,
         args=[session, bot]
     )
     scheduler.start()
