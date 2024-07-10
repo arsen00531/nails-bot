@@ -15,7 +15,7 @@ from aiogram import types
 
 async def send_message(user_id, record, bot: Bot, session):
     res = requests.get(
-        f"https://api.yclients.com/api/v1/company/{record['id']}/",
+        f"https://api.yclients.com/api/v1/company/{record['company_id']}/",
         headers=config.YCLIENTS_HEADERS
     )
     company = res.json()["data"]
@@ -43,7 +43,8 @@ async def send_message(user_id, record, bot: Bot, session):
              f"❗️Напоминаем о записи {datetime_object.day} {config.MONTHS[datetime_object.month]} в {datetime_object.hour}:{datetime_minute} МСК\n\n"
              f"<b>Мастер</b>: <i>{record['staff']['name']}</i>\n"
              f"<b>Адрес</b>: <i>{company['address']}</i>",
-        reply_markup=keyboard.as_markup()
+        reply_markup=keyboard.as_markup(),
+        parse_mode="HTML"
     )
 
 
@@ -70,7 +71,7 @@ async def send_message2(user_id, record, bot: Bot, session):
 
 async def send_message3(user_id, record, bot: Bot):
     res = requests.get(
-        f"https://api.yclients.com/api/v1/company/{record['id']}/",
+        f"https://api.yclients.com/api/v1/company/{record['company_id']}/",
         headers=config.YCLIENTS_HEADERS
     )
     company = res.json()["data"]
@@ -97,7 +98,7 @@ async def notify_sender(session, bot):
         datetime_now = datetime.now(pytz.timezone('Europe/Moscow'))
 
         notification_intervals = [
-            timedelta(minutes=30),
+            timedelta(minutes=25),
             timedelta(minutes=15)
         ]
 
