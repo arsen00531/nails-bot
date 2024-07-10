@@ -150,7 +150,6 @@ async def notify_sender(session, bot):
                             (interval - (datetime_record - datetime_now)) < timedelta(minutes=5):
 
                         await send_message(r.user_id, record, bot, session)
-                        notification_intervals.clear()
                         r.last_notification = datetime_now.strftime("%Y-%m-%dT%H:%M:%S%z")
                         await open_session.commit()
                         break

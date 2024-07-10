@@ -32,6 +32,35 @@ async def add_admin_cmd_handler(callback: types.CallbackQuery, state: FSMContext
 async def add_admin_handler(message: types.Message, state: FSMContext, session: sessionmaker):
     await state.clear()
     admin_id = message.text
+
+    async with session() as open_session:
+        admin: models.sql.Admin = await open_session.execute(
+            select(models.sql.Admin).filter_by(id=int(admin_id)))
+        admin = admin.scalars().first()
+
+    if admin:
+
+        r = requests.get(
+            f"https://api.yclients.com/api/v1/company/{admin.company_id}",
+            headers=config.YCLIENTS_HEADERS
+        )
+        company: dict = r.json()["data"]
+        keyboard = InlineKeyboardBuilder()
+        btn = InlineKeyboardButton(
+            text="◀️ Назад",
+            callback_data="back_to_main"
+        )
+        keyboard.row(btn)
+        btn = InlineKeyboardButton(
+            text="Удалить админа",
+            callback_data="delete_admin"
+        )
+        keyboard.row(btn)
+        return await message.answer(
+            text=f"Данный админ уже привязан к филлиалу {company['title']}. Для начала вам нужно его удалить.",
+            reply_markup=keyboard.as_markup()
+        )
+
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
         text="◀️ Назад",
