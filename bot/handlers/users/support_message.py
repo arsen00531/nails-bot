@@ -24,9 +24,11 @@ async def support_handler(callback: types.CallbackQuery, state: FSMContext, sess
         user = user.scalars().first()
 
         if user.company_id:
-            admin: models.sql.Admin = await open_session.execute(select(
+            admins: models.sql.Admin = await open_session.execute(select(
                 models.sql.Admin).filter_by(company_id=user.company_id))
-            admin = admin.scalars().first()
+            admins: list = admins.scalars().all()
+            admins.reverse()
+            admin = admins[0]
 
     if not user.company_id:
         return await callback.message.answer(

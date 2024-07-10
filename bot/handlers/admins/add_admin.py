@@ -39,7 +39,6 @@ async def add_admin_handler(message: types.Message, state: FSMContext, session: 
         admin = admin.scalars().first()
 
     if admin:
-
         r = requests.get(
             f"https://api.yclients.com/api/v1/company/{admin.company_id}",
             headers=config.YCLIENTS_HEADERS
