@@ -97,8 +97,8 @@ async def notify_sender(session, bot):
         datetime_now = datetime.now(pytz.timezone('Europe/Moscow'))
 
         notification_intervals = [
-            timedelta(minutes=10),
-            timedelta(minutes=5)
+            timedelta(minutes=30),
+            timedelta(minutes=15)
         ]
 
         for r in records:
@@ -119,7 +119,7 @@ async def notify_sender(session, bot):
             ) if r.last_notification else None
 
             if last_notification_time:
-                if (datetime_now - last_notification_time) > timedelta(minutes=5) and (not r.post_notification_1):
+                if (datetime_now - last_notification_time) > timedelta(minutes=30) and (not r.post_notification_1):
                     res = requests.get(
                         f"https://api.yclients.com/api/v1/record/{r.company_id}/{r.id}",
                         headers=config.YCLIENTS_HEADERS
@@ -131,7 +131,7 @@ async def notify_sender(session, bot):
                         r.post_notification_1 = True
                         await open_session.commit()
 
-                elif (datetime_now - last_notification_time) > timedelta(minutes=10) and (not r.post_notification_2):
+                elif (datetime_now - last_notification_time) > timedelta(minutes=15) and (not r.post_notification_2):
                     res = requests.get(
                         f"https://api.yclients.com/api/v1/record/{r.company_id}/{r.id}",
                         headers=config.YCLIENTS_HEADERS
