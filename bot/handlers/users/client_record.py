@@ -43,9 +43,12 @@ async def start_handler(callback: types.CallbackQuery, session):
     record_index = int(callback.data[:1])-1
     record = records[record_index]
 
-    web_app_info = types.WebAppInfo(url=record["short_link"])
-
     keyboard = InlineKeyboardBuilder()
+    btn = InlineKeyboardButton(
+        text="Написать в поддержку",
+        callback_data="admin_support"
+    )
+    keyboard.row(btn)
     btn = InlineKeyboardButton(
         text="Отменить",
         callback_data=f"delete_record_{record['id']}_{record['company_id']}"

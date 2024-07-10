@@ -97,12 +97,12 @@ async def notify_sender(session, bot):
         records: typing.List[models.sql.Record] = records.scalars().all()
         datetime_now = datetime.now(pytz.timezone('Europe/Moscow'))
 
-        notification_intervals = [
-            timedelta(minutes=25),
-            timedelta(minutes=15)
-        ]
-
         for r in records:
+            notification_intervals = [
+                timedelta(minutes=25),
+                timedelta(minutes=15)
+            ]
+
             await asyncio.sleep(1)
             res = requests.get(
                 f"https://api.yclients.com/api/v1/record/{r.company_id}/{r.id}",
@@ -144,13 +144,14 @@ async def notify_sender(session, bot):
                         await open_session.commit()
 
             for interval in notification_intervals:
+                await asyncio.sleep(0.1)
                 if last_notification_time is None or (datetime_record - last_notification_time) >= interval:
                     if (datetime_record - datetime_now) < interval and \
                             (interval - (datetime_record - datetime_now)) < timedelta(minutes=5):
 
                         await send_message(r.user_id, record, bot, session)
+                        notification_intervals.clear()
                         r.last_notification = datetime_now.strftime("%Y-%m-%dT%H:%M:%S%z")
-
                         await open_session.commit()
                         break
 

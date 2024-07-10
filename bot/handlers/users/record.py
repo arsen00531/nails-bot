@@ -20,11 +20,7 @@ async def start_handler(message: types.Message):
         ]
     ]
     keyboard = types.ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True, one_time_keyboard=True)
-    # btn = InlineKeyboardButton(
-    #     text="◀️ Назад",
-    #     callback_data="back_to_main"
-    # )
-    # keyboard.row(btn)
+
     await message.answer(
         text="Выберите",
         reply_markup=keyboard
