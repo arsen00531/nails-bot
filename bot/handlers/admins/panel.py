@@ -93,4 +93,4 @@ async def start_handler(message: types.Message, session):
 
 
 def setup(dp: Dispatcher):
-    dp.message.register(start_handler, F.text == "Админ панель")
+    dp.message.register(start_handler, F.text == "Админ панель ⚙️")

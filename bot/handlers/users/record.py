@@ -28,4 +28,4 @@ async def start_handler(message: types.Message):
 
 
 def setup(dp: Dispatcher):
-    dp.message.register(start_handler, F.text == "Записаться")
+    dp.message.register(start_handler, F.text == "Записаться 🟣")

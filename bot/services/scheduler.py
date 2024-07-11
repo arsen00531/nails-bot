@@ -27,7 +27,7 @@ async def send_message(user_id, record, bot: Bot, session):
 
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
-        text="Отменить",
+        text="Отменить ❌",
         callback_data=f"delete_record_{record['id']}_{record['company_id']}"
     )
     keyboard.row(btn)
@@ -126,7 +126,7 @@ async def notify_sender(session, bot):
                         headers=config.YCLIENTS_HEADERS
                     )
                     record_attendance = res.json()["data"]["attendance"]
-                    print(record_attendance, r.id)
+
                     if record_attendance == 1:
                         await send_message2(r.user_id, record, bot, session)
                         r.post_notification_1 = True

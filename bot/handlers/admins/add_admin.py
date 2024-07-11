@@ -39,11 +39,11 @@ async def add_admin_handler(message: types.Message, state: FSMContext, session: 
         admin = admin.scalars().first()
 
     if admin:
-        r = requests.get(
-            f"https://api.yclients.com/api/v1/company/{admin.company_id}",
-            headers=config.YCLIENTS_HEADERS
-        )
-        company: dict = r.json()["data"]
+        # r = requests.get(
+        #     f"https://api.yclients.com/api/v1/company/{admin.company_id}",
+        #     headers=config.YCLIENTS_HEADERS
+        # )
+        # company: dict = r.json()["data"]
         keyboard = InlineKeyboardBuilder()
         btn = InlineKeyboardButton(
             text="◀️ Назад",
@@ -56,7 +56,7 @@ async def add_admin_handler(message: types.Message, state: FSMContext, session: 
         )
         keyboard.row(btn)
         return await message.answer(
-            text=f"Данный админ уже привязан к филлиалу {company['title']}. Для начала вам нужно его удалить.",
+            text=f"Данный админ уже привязан к филлиалу {admin.company_title}. Для начала вам нужно его удалить.",
             reply_markup=keyboard.as_markup()
         )
 
@@ -106,9 +106,9 @@ async def get_company_id_handler(message: types.Message, state: FSMContext, sess
     match_address = [i for i in salons if re.findall(message.text, i["address"], flags=re.I)]
 
     if match_title:
-        salon = match_title[0]
+        company = match_title[0]
     elif match_address:
-        salon = match_address[0]
+        company = match_address[0]
     else:
         return await message.answer(
             text="Не нашли такой салон.",
@@ -116,7 +116,7 @@ async def get_company_id_handler(message: types.Message, state: FSMContext, sess
         )
 
     await message.answer(
-        text=f"Новый админ <b>{state_data.get('admin_id')}</b> добавлен в салон <b>{salon['title']}</b>!\n\n"
+        text=f"Новый админ <b>{state_data.get('admin_id')}</b> добавлен в салон <b>{company['title']}</b>!\n\n"
              "Удалить админа /deleteadmin",
         parse_mode="HTML",
         reply_markup=keyboard.as_markup()
@@ -125,7 +125,8 @@ async def get_company_id_handler(message: types.Message, state: FSMContext, sess
     async with session() as open_session:
         new_admin = models.sql.Admin(
             id=state_data.get("admin_id"),
-            company_id=salon["id"]
+            company_id=company["id"],
+            company_title=company["title"]
         )
         await open_session.merge(new_admin)
         await open_session.commit()

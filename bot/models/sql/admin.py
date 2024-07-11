@@ -10,6 +10,7 @@ class Admin(Base):
     index = Column(Integer, primary_key=True)
     id = Column(BigInteger)
     company_id = Column(BigInteger)
+    company_title = Column(String)
 
 
 

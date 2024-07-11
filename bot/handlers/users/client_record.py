@@ -50,7 +50,7 @@ async def start_handler(callback: types.CallbackQuery, session):
     )
     keyboard.row(btn)
     btn = InlineKeyboardButton(
-        text="Отменить",
+        text="Отменить ❌",
         callback_data=f"delete_record_{record['id']}_{record['company_id']}"
     )
     keyboard.row(btn)

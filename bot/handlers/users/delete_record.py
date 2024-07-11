@@ -97,7 +97,7 @@ async def delete_cancel_handler(callback: types.CallbackQuery, session):
 
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
-        text="Отменить",
+        text="Отменить ❌",
         callback_data=f"delete_record_{record_id}_{company_id}"
     )
     keyboard.row(btn)

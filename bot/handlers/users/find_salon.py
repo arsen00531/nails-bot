@@ -24,7 +24,7 @@ async def start_handler(message: types.Message, state: FSMContext):
     await message.answer(
         text="Напишите название метро (Менделеевская, Сухаревская)"
              " или название улицы (Новослободская, Тверская-Ямская)",
-        keyboard=keyboard.as_markup()
+        reply_markup=keyboard.as_markup()
     )
     await state.set_state(FindSalonStates.get_data)
 
@@ -46,8 +46,16 @@ async def get_data_handler(message: types.Message, state: FSMContext):
     elif match_address:
         salon = match_address[0]
     else:
+
+        keyboard = InlineKeyboardBuilder()
+        btn = InlineKeyboardButton(
+            text="◀️ Назад",
+            callback_data="back_to_main"
+        )
+        keyboard.row(btn)
         return await message.answer(
-            text="Не нашли такой салон."
+            text="Не нашли такой салон.",
+            reply_markup=keyboard.as_markup()
         )
 
     web_app_info = types.WebAppInfo(url=salon["bookforms"][0]["url"])
