@@ -49,6 +49,13 @@ async def send_message(user_id, record, bot: Bot, session):
 
 
 async def send_message2(user_id, record, bot: Bot, session):
+
+    res = requests.get(
+        f"https://api.yclients.com/api/v1/company/{record['company_id']}?showBookforms=1",
+        headers=config.YCLIENTS_HEADERS
+    )
+    company = res.json()["data"]
+
     async with session() as open_session:
         yandex_company = await open_session.execute(
             select(models.sql.YandexCompany).filter_by(company_id=record["company_id"]))
@@ -63,7 +70,7 @@ async def send_message2(user_id, record, bot: Bot, session):
 
     await bot.send_message(
         chat_id=user_id,
-        text=f"Приветствуем, на связи {record['title']} 👋\n\n"
+        text=f"Приветствуем, на связи {company['title']} 👋\n\n"
              f"Вам все понравилось? Пожалуйста, оцените нашу работу оставив отзыв.",
         reply_markup=keyboard.as_markup()
     )
@@ -85,7 +92,7 @@ async def send_message3(user_id, record, bot: Bot):
 
     await bot.send_message(
         chat_id=user_id,
-        text=f"Приветствуем, на связи {record['title']}. Что-то вы давненько у нас не были 😃\n\n"
+        text=f"Приветствуем, на связи {company['title']}. Что-то вы давненько у нас не были 😃\n\n"
              f"Запишитесь онлайн прямо сейчас по кнопке ниже!",
         reply_markup=keyboard.as_markup()
     )
@@ -117,29 +124,28 @@ async def notify_sender(session, bot):
                 r.last_notification, "%Y-%m-%dT%H:%M:%S%z"
             ) if r.last_notification else None
 
-            if last_notification_time:
-                if (datetime_now - last_notification_time) > timedelta(minutes=15) and (not r.post_notification_1):
-                    res = requests.get(
-                        f"https://api.yclients.com/api/v1/record/{r.company_id}/{r.id}",
-                        headers=config.YCLIENTS_HEADERS
-                    )
-                    record_attendance = res.json()["data"]["attendance"]
+            if (datetime_now - datetime_record) > timedelta(minutes=10) and (not r.post_notification_1):
+                res = requests.get(
+                    f"https://api.yclients.com/api/v1/record/{r.company_id}/{r.id}",
+                    headers=config.YCLIENTS_HEADERS
+                )
+                record_attendance = res.json()["data"]["attendance"]
+                print(record_attendance)
+                if record_attendance == 1:
+                    r.post_notification_1 = True
+                    await open_session.commit()
+                    await send_message2(r.user_id, record, bot, session)
 
-                    if record_attendance == 1:
-                        r.post_notification_1 = True
-                        await open_session.commit()
-                        await send_message2(r.user_id, record, bot, session)
-
-                elif (datetime_now - last_notification_time) > timedelta(minutes=30) and (not r.post_notification_2):
-                    res = requests.get(
-                        f"https://api.yclients.com/api/v1/record/{r.company_id}/{r.id}",
-                        headers=config.YCLIENTS_HEADERS
-                    )
-                    record_attendance = res.json()["data"]["attendance"]
-                    if record_attendance == 1:
-                        await open_session.delete(r)
-                        await open_session.commit()
-                        await send_message3(r.user_id, record, bot)
+            elif (datetime_now - datetime_record) > timedelta(minutes=20) and (not r.post_notification_2):
+                res = requests.get(
+                    f"https://api.yclients.com/api/v1/record/{r.company_id}/{r.id}",
+                    headers=config.YCLIENTS_HEADERS
+                )
+                record_attendance = res.json()["data"]["attendance"]
+                if record_attendance == 1:
+                    await open_session.delete(r)
+                    await open_session.commit()
+                    await send_message3(r.user_id, record, bot)
 
             for interval in notification_intervals:
                 await asyncio.sleep(0.1)
