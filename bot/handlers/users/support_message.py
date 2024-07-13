@@ -70,9 +70,14 @@ async def get_msg_handler(message: types.Message, state: FSMContext, session):
     await state.clear()
 
     async with session() as open_session:
+        user: models.sql.User = await open_session.execute(select(
+            models.sql.User).filter_by(id=message.from_user.id))
+        user = user.scalars().first()
+
         admins: models.sql.Admin = await open_session.execute(select(
-            models.sql.Admin.id))
-        admins: list = admins.scalars().all()
+            models.sql.Admin))
+        admins: list[models.sql.Admin] = admins.scalars().all()
+        admins_id = [a.id for a in admins]
 
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
@@ -81,17 +86,26 @@ async def get_msg_handler(message: types.Message, state: FSMContext, session):
     )
     keyboard.row(btn)
 
-    await message.bot.send_message(
-        chat_id=state_data["chat_id"],
-        text=f"Сообщение от {message.from_user.full_name[:30]} (<code>{message.from_user.id}</code>)",
-        parse_mode="HTML"
-    )
+    if message.from_user.id in admins_id:
+        company_title = [a.company_title for a in admins if a.id == message.from_user.id][0]
+        await message.bot.send_message(
+            chat_id=state_data["chat_id"],
+            text=f"Сообщение от {company_title}",
+            parse_mode="HTML"
+        )
+    else:
+        await message.bot.send_message(
+            chat_id=state_data["chat_id"],
+            text=f"Сообщение от {message.from_user.full_name[:30]} {user.phone}",
+            parse_mode="HTML"
+        )
+
     await asyncio.sleep(0.5)
     await message.send_copy(
         chat_id=state_data["chat_id"],
         reply_markup=keyboard.as_markup()
     )
-    if (message.from_user.id in config.BOT_ADMINS) or (message.from_user.id in admins):
+    if (message.from_user.id in config.BOT_ADMINS) or (message.from_user.id in admins_id):
         keyboard = keyboards.reply.main_admin.keyboard
     else:
         keyboard = keyboards.reply.main.keyboard
