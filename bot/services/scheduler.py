@@ -49,7 +49,7 @@ async def send_message(user_id, record, bot: Bot, session):
 
 
 async def send_message2(user_id, record, bot: Bot, session):
-    async with (session() as open_session):
+    async with session() as open_session:
         yandex_company = await open_session.execute(
             select(models.sql.YandexCompany).filter_by(company_id=record["company_id"]))
         yandex_company: models.sql.YandexCompany = yandex_company.scalars().first()
@@ -92,7 +92,7 @@ async def send_message3(user_id, record, bot: Bot):
 
 
 async def notify_sender(session, bot):
-    async with (session() as open_session):
+    async with session() as open_session:
         records = await open_session.execute(select(models.sql.Record))
         records: typing.List[models.sql.Record] = records.scalars().all()
         datetime_now = datetime.now(pytz.timezone('Europe/Moscow'))
@@ -113,8 +113,6 @@ async def notify_sender(session, bot):
                 continue
 
             datetime_record = datetime.strptime(r.datetime, "%Y-%m-%dT%H:%M:%S%z")
-            # datetime_record = datetime.strptime("2024-07-08T11:00:00+03:00", "%Y-%m-%dT%H:%M:%S%z")
-            # last_notification_time = datetime.strptime("2024-07-08T10:45:00+03:00", "%Y-%m-%dT%H:%M:%S%z")
             last_notification_time = datetime.strptime(
                 r.last_notification, "%Y-%m-%dT%H:%M:%S%z"
             ) if r.last_notification else None
@@ -128,9 +126,9 @@ async def notify_sender(session, bot):
                     record_attendance = res.json()["data"]["attendance"]
 
                     if record_attendance == 1:
-                        await send_message2(r.user_id, record, bot, session)
                         r.post_notification_1 = True
                         await open_session.commit()
+                        await send_message2(r.user_id, record, bot, session)
 
                 elif (datetime_now - last_notification_time) > timedelta(minutes=15) and (not r.post_notification_2):
                     res = requests.get(
@@ -139,9 +137,9 @@ async def notify_sender(session, bot):
                     )
                     record_attendance = res.json()["data"]["attendance"]
                     if record_attendance == 1:
-                        await send_message3(r.user_id, record, bot)
                         await open_session.delete(r)
                         await open_session.commit()
+                        await send_message3(r.user_id, record, bot)
 
             for interval in notification_intervals:
                 await asyncio.sleep(0.1)

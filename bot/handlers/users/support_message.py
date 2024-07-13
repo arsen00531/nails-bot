@@ -69,6 +69,11 @@ async def get_msg_handler(message: types.Message, state: FSMContext, session):
     state_data = await state.get_data()
     await state.clear()
 
+    async with session() as open_session:
+        admins: models.sql.Admin = await open_session.execute(select(
+            models.sql.Admin.id))
+        admins: list = admins.scalars().all()
+
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
         text="Ответить",
@@ -86,8 +91,14 @@ async def get_msg_handler(message: types.Message, state: FSMContext, session):
         chat_id=state_data["chat_id"],
         reply_markup=keyboard.as_markup()
     )
+    if (message.from_user.id in config.BOT_ADMINS) or (message.from_user.id in admins):
+        keyboard = keyboards.reply.main_admin.keyboard
+    else:
+        keyboard = keyboards.reply.main.keyboard
+
     await message.answer(
-        text="Сообщение отправлено, ожидайте ответа."
+        text="Сообщение отправлено, ожидайте ответа.",
+        reply_markup=keyboard
     )
 
 
