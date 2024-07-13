@@ -36,12 +36,19 @@ async def start_handler(message: types.Message, session):
     if datetime_now.day < 10:
         datetime_now_day = f"0{datetime_now.day}"
 
-    r = requests.get(
-        f"https://api.yclients.com/api/v1/records/1042269?page=1&count=500&start_date={datetime_now.year}-{datetime_now_month}-{datetime_now_day}",
+    response = requests.get(
+        f"https://api.yclients.com/api/v1/records/{user.company_id}?page=1&count=500&start_date={datetime_now.year}-{datetime_now_month}-{datetime_now_day}",
         headers=config.YCLIENTS_HEADERS
     )
+    records = []
 
-    records = [record for record in r.json()["data"] if (record["client"]["phone"] == user.phone) and not record["deleted"]]
+    for record in response.json()["data"]:
+        if not record.get("client"):
+            continue
+        if record.get("deleted"):
+            continue
+        if record.get("client")["phone"] == user.phone:
+            records.append(record)
 
     records = records[:9]
 
@@ -79,12 +86,6 @@ async def start_handler(message: types.Message, session):
         else:
             n += 1
 
-    # if n != 0:
-    #     buttons.append(temp_array)
-    #
-    #
-
-    print(records)
     text = ""
     for index, record in enumerate(records):
         datetime_object = datetime.strptime(record["datetime"], "%Y-%m-%dT%H:%M:%S%z")

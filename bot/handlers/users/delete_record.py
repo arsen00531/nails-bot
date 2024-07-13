@@ -85,12 +85,13 @@ async def delete_cancel_handler(callback: types.CallbackQuery, session):
     datetime_now_day = datetime_now.day
     if datetime_now.day < 10:
         datetime_now_day = f"0{datetime_now.day}"
+    record_id, company_id = re.findall("delete_cancel_record_(.+)_(.+)", callback.data)[0]
 
     r = requests.get(
-        f"https://api.yclients.com/api/v1/records/1042269?page=1&count=500&start_date={datetime_now.year}-{datetime_now_month}-{datetime_now_day}",
+        f"https://api.yclients.com/api/v1/records/{company_id}?page=1&count=500&start_date={datetime_now.year}-{datetime_now_month}-{datetime_now_day}",
         headers=config.YCLIENTS_HEADERS
     )
-    record_id, company_id = re.findall("delete_cancel_record_(.+)_(.+)", callback.data)[0]
+
     record = [record for record in r.json()["data"] if record["id"] == int(record_id)][0]
 
     web_app_info = types.WebAppInfo(url=record["short_link"])
@@ -114,7 +115,7 @@ async def delete_cancel_handler(callback: types.CallbackQuery, session):
         datetime_minute = f"0{datetime_minute}"
 
     r = requests.get(
-        f"https://api.yclients.com/api/v1/companies?id={1042269}",
+        f"https://api.yclients.com/api/v1/companies?id={company_id}",
         headers=config.YCLIENTS_HEADERS
     )
     company = r.json()["data"][0]

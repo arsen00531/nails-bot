@@ -55,12 +55,19 @@ async def back_to_records_handler(callback: types.CallbackQuery, state: FSMConte
     if datetime_now.day < 10:
         datetime_now_day = f"0{datetime_now.day}"
 
-    r = requests.get(
-        f"https://api.yclients.com/api/v1/records/1042269?page=1&count=500&start_date={datetime_now.year}-{datetime_now_month}-{datetime_now_day}",
+    response = requests.get(
+        f"https://api.yclients.com/api/v1/records/{user.company_id}?page=1&count=500&start_date={datetime_now.year}-{datetime_now_month}-{datetime_now_day}",
         headers=config.YCLIENTS_HEADERS
     )
+    records = []
 
-    records = [record for record in r.json()["data"] if record["client"]["phone"] == user.phone]
+    for record in response.json()["data"]:
+        if not record.get("client"):
+            continue
+        if record.get("deleted"):
+            continue
+        if record.get("client")["phone"] == user.phone:
+            records.append(record)
 
     records = records[:9]
 

@@ -44,17 +44,21 @@ async def start_handler(message: types.Message, command: CommandObject, session)
             reply_markup=keyboard
         )
 
-    # keyboard = InlineKeyboardBuilder()
-    # btn = InlineKeyboardButton(
-    #     text="Написать в поддержку",
-    #     callback_data="admin_support"
-    # )
-    # keyboard.row(btn)
-    #
-    # await message.answer(
-    #     text="Test",
-    #     reply_markup=keyboard.as_markup()
-    # )
+    async with session() as open_session:
+        user: models.sql.User = await open_session.execute(select(
+            models.sql.User).filter_by(id=message.from_user.id))
+        user = user.scalars().first()
+
+        new_record = models.sql.Record(
+            id=190,
+            user_id=user.id,
+            company_id=91,
+            title="test",
+            datetime="f"
+        )
+        await open_session.merge(new_record)
+        user.company_id = 1
+        await open_session.commit()
 
 
 def setup(dp: Dispatcher):
