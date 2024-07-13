@@ -71,7 +71,7 @@ async def send_message2(user_id, record, bot: Bot, session):
 
 async def send_message3(user_id, record, bot: Bot):
     res = requests.get(
-        f"https://api.yclients.com/api/v1/company/{record['company_id']}/",
+        f"https://api.yclients.com/api/v1/company/{record['company_id']}?showBookforms=1",
         headers=config.YCLIENTS_HEADERS
     )
     company = res.json()["data"]
@@ -118,7 +118,7 @@ async def notify_sender(session, bot):
             ) if r.last_notification else None
 
             if last_notification_time:
-                if (datetime_now - last_notification_time) > timedelta(minutes=30) and (not r.post_notification_1):
+                if (datetime_now - last_notification_time) > timedelta(minutes=15) and (not r.post_notification_1):
                     res = requests.get(
                         f"https://api.yclients.com/api/v1/record/{r.company_id}/{r.id}",
                         headers=config.YCLIENTS_HEADERS
@@ -130,7 +130,7 @@ async def notify_sender(session, bot):
                         await open_session.commit()
                         await send_message2(r.user_id, record, bot, session)
 
-                elif (datetime_now - last_notification_time) > timedelta(minutes=15) and (not r.post_notification_2):
+                elif (datetime_now - last_notification_time) > timedelta(minutes=30) and (not r.post_notification_2):
                     res = requests.get(
                         f"https://api.yclients.com/api/v1/record/{r.company_id}/{r.id}",
                         headers=config.YCLIENTS_HEADERS
