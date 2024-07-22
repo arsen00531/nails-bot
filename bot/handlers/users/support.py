@@ -79,17 +79,19 @@ async def get_msg_handler(message: types.Message, state: FSMContext, session):
     )
     keyboard.row(btn)
 
-    if message.from_user.id in admins_id:
+    if (message.from_user.id in admins_id) or (message.from_user.id in config.BOT_ADMINS):
         company_title = [a.company_title for a in admins if a.id == message.from_user.id][0]
         await message.bot.send_message(
             chat_id=state_data["chat_id"],
-            text=f"Сообщение от {company_title}",
+            text=f"Сообщение от: <b>{company_title}</b>",
             parse_mode="HTML"
         )
     else:
         await message.bot.send_message(
             chat_id=state_data["chat_id"],
-            text=f"Сообщение от {message.from_user.full_name[:30]} {user.phone}",
+            text=f"Сообщение от: <b>{message.from_user.full_name[:30]}</b>"
+                 f"\n"
+                 f"Номер телефона: <code>+{user.phone}</code>",
             parse_mode="HTML"
         )
 
