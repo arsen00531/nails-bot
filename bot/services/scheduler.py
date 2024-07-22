@@ -1,10 +1,8 @@
 import asyncio
 from datetime import datetime, timedelta
 import typing
-from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton, ReplyKeyboardBuilder, KeyboardButton
-
-import requests
-
+from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
+from bot.services import yclients
 from bot import models
 from sqlalchemy import select
 from aiogram import Bot
@@ -13,12 +11,9 @@ from bot import config
 from aiogram import types
 
 
-async def send_message(user_id, record, bot: Bot, session):
-    res = requests.get(
-        f"https://api.yclients.com/api/v1/company/{record['company_id']}/",
-        headers=config.YCLIENTS_HEADERS
-    )
-    company = res.json()["data"]
+async def send_message(user_id, record, bot: Bot):
+    response = await yclients.get_company(record["company_id"])
+    company = response["data"]
 
     datetime_object = datetime.strptime(record["datetime"], "%Y-%m-%dT%H:%M:%S%z")
     datetime_minute = datetime_object.minute
@@ -49,12 +44,8 @@ async def send_message(user_id, record, bot: Bot, session):
 
 
 async def send_message2(user_id, record, bot: Bot, session):
-
-    res = requests.get(
-        f"https://api.yclients.com/api/v1/company/{record['company_id']}?showBookforms=1",
-        headers=config.YCLIENTS_HEADERS
-    )
-    company = res.json()["data"]
+    response = await yclients.get_company(record["company_id"], True)
+    company = response["data"]
 
     async with session() as open_session:
         yandex_company = await open_session.execute(
@@ -77,11 +68,9 @@ async def send_message2(user_id, record, bot: Bot, session):
 
 
 async def send_message3(user_id, record, bot: Bot):
-    res = requests.get(
-        f"https://api.yclients.com/api/v1/company/{record['company_id']}?showBookforms=1",
-        headers=config.YCLIENTS_HEADERS
-    )
-    company = res.json()["data"]
+    response = await yclients.get_company(record["company_id"], True)
+    company = response["data"]
+
     web_app_info = types.WebAppInfo(url=company["bookforms"][0]["url"])
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
@@ -111,11 +100,8 @@ async def notify_sender(session, bot):
             ]
 
             await asyncio.sleep(1)
-            res = requests.get(
-                f"https://api.yclients.com/api/v1/record/{r.company_id}/{r.id}",
-                headers=config.YCLIENTS_HEADERS
-            )
-            record = res.json()["data"]
+            response = await yclients.get_record(r.company_id, r.id)
+            record = response["data"]
             if record["deleted"]:
                 continue
 
@@ -125,23 +111,16 @@ async def notify_sender(session, bot):
             ) if r.last_notification else None
 
             if (datetime_now - datetime_record) > timedelta(minutes=10) and (not r.post_notification_1):
-                res = requests.get(
-                    f"https://api.yclients.com/api/v1/record/{r.company_id}/{r.id}",
-                    headers=config.YCLIENTS_HEADERS
-                )
-                record_attendance = res.json()["data"]["attendance"]
-                print(record_attendance)
+                response = await yclients.get_record(r.company_id, r.id)
+                record_attendance = response["data"]["attendance"]
                 if record_attendance == 1:
                     r.post_notification_1 = True
                     await open_session.commit()
                     await send_message2(r.user_id, record, bot, session)
 
             elif (datetime_now - datetime_record) > timedelta(minutes=20) and (not r.post_notification_2):
-                res = requests.get(
-                    f"https://api.yclients.com/api/v1/record/{r.company_id}/{r.id}",
-                    headers=config.YCLIENTS_HEADERS
-                )
-                record_attendance = res.json()["data"]["attendance"]
+                response = await yclients.get_record(r.company_id, r.id)
+                record_attendance = response["data"]["attendance"]
                 if record_attendance == 1:
                     await open_session.delete(r)
                     await open_session.commit()
@@ -152,9 +131,7 @@ async def notify_sender(session, bot):
                 if last_notification_time is None or (datetime_record - last_notification_time) >= interval:
                     if (datetime_record - datetime_now) < interval and \
                             (interval - (datetime_record - datetime_now)) < timedelta(minutes=5):
-
-                        await send_message(r.user_id, record, bot, session)
+                        await send_message(r.user_id, record, bot)
                         r.last_notification = datetime_now.strftime("%Y-%m-%dT%H:%M:%S%z")
                         await open_session.commit()
                         break
-

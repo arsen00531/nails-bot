@@ -1,18 +1,12 @@
 import asyncio
 import re
-
 from aiogram import types, Dispatcher
-from aiogram.filters import CommandStart, Command
-from bot import keyboards, config, filters
+from bot import keyboards, config
 from aiogram.fsm.context import FSMContext
-from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton, ReplyKeyboardBuilder, KeyboardButton
-import tools
+from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 from sqlalchemy import select
 from bot import models
-from datetime import datetime
 from aiogram import F
-from bot.services.haversine_formula import get_nearest_location
-import typing
 from bot import states
 
 
@@ -52,8 +46,7 @@ async def support_handler(callback: types.CallbackQuery, state: FSMContext, sess
     await state.set_state(states.AdminSupportStates.get_msg)
 
 
-async def chat_answer_handler(callback: types.CallbackQuery, state: FSMContext, session):
-    state_data = await state.get_data()
+async def chat_answer_handler(callback: types.CallbackQuery, state: FSMContext):
     await state.clear()
 
     chat_id = int(re.findall(r"chat_answer_to_(.+)", callback.data)[0])

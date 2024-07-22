@@ -1,21 +1,16 @@
 import re
-
 from aiogram import types, Dispatcher
-from aiogram.filters import CommandStart, Command
-from bot import keyboards, config, filters
-from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton, ReplyKeyboardBuilder, KeyboardButton
-import tools
+from bot import config, services
+from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 from sqlalchemy import select
 from bot import models
 from datetime import datetime
 from aiogram import F
-import requests
 import pytz
-from bot.services.haversine_formula import get_nearest_location
+from bot.services import yclients
 
 
-
-async def start_handler(callback: types.CallbackQuery, session):
+async def get_record_handler(callback: types.CallbackQuery, session):
     await callback.answer()
 
     async with session() as open_session:
@@ -33,13 +28,13 @@ async def start_handler(callback: types.CallbackQuery, session):
     if datetime_now.day < 10:
         datetime_now_day = f"0{datetime_now.day}"
 
-    response = requests.get(
-        f"https://api.yclients.com/api/v1/records/{user.company_id}?page=1&count=500&start_date={datetime_now.year}-{datetime_now_month}-{datetime_now_day}",
-        headers=config.YCLIENTS_HEADERS
+    response = await services.yclients.get_company_records(
+        user.company_id, datetime_now.year, datetime_now_month, datetime_now_day
     )
+
     records = []
 
-    for record in response.json()["data"]:
+    for record in response["data"]:
         if not record.get("client"):
             continue
         if record.get("deleted"):
@@ -75,11 +70,8 @@ async def start_handler(callback: types.CallbackQuery, session):
     if datetime_minute < 10:
         datetime_minute = f"0{datetime_minute}"
 
-    r = requests.get(
-        f"https://api.yclients.com/api/v1/companies?id={user.company_id}",
-        headers=config.YCLIENTS_HEADERS
-    )
-    company = r.json()["data"][0]
+    response = await yclients.get_company(user.company_id)
+    company = response["data"]
     metro_station = re.findall(r"City\s+Nails\s+(.+)", company["title"])[0]
 
     record_titles = [s["title"] for s in record['services']]
@@ -108,6 +100,6 @@ async def start_handler(callback: types.CallbackQuery, session):
 
 
 def setup(dp: Dispatcher):
-    dp.callback_query.register(start_handler, F.data.in_(config.EMOJI_NUMS))
+    dp.callback_query.register(get_record_handler, F.data.in_(config.EMOJI_NUMS))
 
 

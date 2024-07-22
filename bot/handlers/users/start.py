@@ -1,15 +1,12 @@
 from aiogram import types, Dispatcher
-from aiogram.filters import CommandStart, Command, CommandObject
-from bot import keyboards, config, filters
-from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton, ReplyKeyboardBuilder, KeyboardButton
-import tools
+from aiogram.filters import CommandStart
+from bot import keyboards, config
 from sqlalchemy import select
 from bot import models
-from datetime import datetime
 import typing
 
 
-async def start_handler(message: types.Message, command: CommandObject, session):
+async def start_handler(message: types.Message, session):
     kb = [
         [
             types.KeyboardButton(text="Поделиться", request_contact=True),
@@ -28,7 +25,7 @@ async def start_handler(message: types.Message, command: CommandObject, session)
 
     if not user:
         await message.answer(
-            text="Здравствуйте, вас приветствует сеть салонов City Nails. Для начала поделитесь своим номеров"
+            text="Здравствуйте, вас приветствует сеть салонов City Nails. Для начала поделитесь своим номером"
                  " телефона, нажав по кнопке ниже.",
             reply_markup=keyboard
         )

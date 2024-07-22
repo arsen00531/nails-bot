@@ -1,18 +1,19 @@
 from aiogram import Dispatcher
 from . import start
-from . import record
-from . import nearest_salon
+from . import create_record
+from . import nearest_company
 from . import auth
-from . import get_client_records
-from . import client_record
-from . import find_salon
-from . import back_reply
+from . import get_records
+from . import get_record
+from . import search_company
+from . import back
 from . import delete_record
-from . import support_message
+from . import support
+
 
 def setup(dp: Dispatcher):
     for module in (
-            start, record, nearest_salon, auth, get_client_records, client_record, find_salon,
-            back_reply, delete_record, support_message
+            start, create_record, nearest_company, auth, get_records, get_record, search_company,
+            back, delete_record, support
     ):
         module.setup(dp)

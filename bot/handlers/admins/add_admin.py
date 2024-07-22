@@ -1,14 +1,12 @@
 import typing
 from aiogram import types, Dispatcher
-from aiogram.filters import Command
 from sqlalchemy.orm.session import sessionmaker
-from sqlalchemy import select, func
+from sqlalchemy import select
 from aiogram.fsm.context import FSMContext
 from bot import models, filters, states
+from bot.services import yclients
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton, ReplyKeyboardBuilder, KeyboardButton
 from aiogram import F
-import requests
-from bot import config
 import re
 
 
@@ -39,11 +37,7 @@ async def add_admin_handler(message: types.Message, state: FSMContext, session: 
         admin = admin.scalars().first()
 
     if admin:
-        # r = requests.get(
-        #     f"https://api.yclients.com/api/v1/company/{admin.company_id}",
-        #     headers=config.YCLIENTS_HEADERS
-        # )
-        # company: dict = r.json()["data"]
+
         keyboard = InlineKeyboardBuilder()
         btn = InlineKeyboardButton(
             text="◀️ Назад",
@@ -96,14 +90,12 @@ async def get_company_id_handler(message: types.Message, state: FSMContext, sess
     keyboard.row(btn)
 
     state_data = await state.get_data()
-    r = requests.get(
-        "https://api.yclients.com/api/v1/companies?my=1&count=100",
-        headers=config.YCLIENTS_HEADERS
-    )
-    salons: list = r.json()["data"]
 
-    match_title = [i for i in salons if re.findall(message.text, i["title"], flags=re.I)]
-    match_address = [i for i in salons if re.findall(message.text, i["address"], flags=re.I)]
+    response = await yclients.get_companies()
+    companies: list = response["data"]
+
+    match_title = [i for i in companies if re.findall(message.text, i["title"], flags=re.I)]
+    match_address = [i for i in companies if re.findall(message.text, i["address"], flags=re.I)]
 
     if match_title:
         company = match_title[0]

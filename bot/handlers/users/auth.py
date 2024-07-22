@@ -1,17 +1,13 @@
 from aiogram import types, Dispatcher
-from aiogram.filters import CommandStart, Command
 from bot import keyboards, config, filters
-from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton, ReplyKeyboardBuilder, KeyboardButton
-import tools
 from sqlalchemy import select
 from bot import models
 from datetime import datetime
 from aiogram import F
-from bot.services.haversine_formula import get_nearest_location
 import typing
 
 
-async def start_handler(message: types.Message, session):
+async def contact_handler(message: types.Message, session):
     async with session() as open_session:
         admins: typing.List[models.sql.Admin] = await open_session.execute(select(
             models.sql.Admin.id))
@@ -42,9 +38,7 @@ async def start_handler(message: types.Message, session):
     )
 
 
-
-
 def setup(dp: Dispatcher):
-    dp.message.register(start_handler, F.content_type == types.ContentType.CONTACT)
+    dp.message.register(contact_handler, F.content_type == types.ContentType.CONTACT)
 
 

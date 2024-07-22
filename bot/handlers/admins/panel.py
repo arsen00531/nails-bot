@@ -1,14 +1,11 @@
 from aiogram import types, Dispatcher
-from aiogram.filters import CommandStart, Command
-from bot import keyboards, config, filters
+from bot import config
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton, ReplyKeyboardBuilder, KeyboardButton
-import tools
 from sqlalchemy import select
 from bot import models
-from datetime import datetime
 from aiogram import F
 import typing
-import requests
+from bot.services import yclients
 
 
 async def start_handler(message: types.Message, session):
@@ -62,10 +59,8 @@ async def start_handler(message: types.Message, session):
                 admin: models.sql.Admin = await open_session.execute(
                     select(models.sql.Admin).filter_by(id=message.from_user.id))
                 admin = admin.scalars().first()
-        r = requests.get(
-            f"https://api.yclients.com/api/v1/company/{admin.company_id}",
-            headers=config.YCLIENTS_HEADERS
-        )
+
+        response = await yclients.get_company(admin.company_id)
 
         btn_1 = InlineKeyboardButton(
             text=f"Рассылка ФИЛИАЛ",
@@ -86,7 +81,7 @@ async def start_handler(message: types.Message, session):
 
         await message.answer(
             text="<b>Админ панель</b>\n\n"
-                 f"Ваш филиал: <i>{r.json()['data']['title']}</i>",
+                 f"Ваш филиал: <i>{response['data']['title']}</i>",
             reply_markup=keyboard.as_markup(),
             parse_mode="HTML"
         )

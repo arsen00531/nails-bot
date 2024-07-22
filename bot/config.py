@@ -20,21 +20,6 @@ YCLIENTS_USER = env.str("YCLIENTS_USER")
 DIRNAME = os.path.dirname(__file__)
 os.chdir(f"{DIRNAME}//..")
 
-SALONS = [
-    {
-        'lat': 55.6638662,
-        'lon': 37.4861075,
-        "address": "Москва, Проспект Вернадского, 105к4",
-        "metro_stations": ["Юго-Западная",]
-    },
-    {
-        'lat': 55.8023694,
-        'lon': 37.5940776,
-        "address": "Москва, ул. Складочная, 1 стр31",
-        "metro_stations": ["Дмитровская", "Савеловская"]
-    }
-]
-
 EMOJI_NUMS = [
     "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣",
 ]

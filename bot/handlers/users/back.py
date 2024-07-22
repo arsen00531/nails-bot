@@ -1,26 +1,17 @@
 from aiogram import types, Dispatcher
-from aiogram.filters import CommandStart, Command
-from bot import keyboards, config, filters
-from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton, ReplyKeyboardBuilder, KeyboardButton
-import tools
+from bot import keyboards, config, filters, services
+from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 from sqlalchemy import select
 from bot import models
 from datetime import datetime
 from aiogram import F
 from aiogram.fsm.context import FSMContext
-from bot.states import FindSalonStates
-import requests
 import pytz
 import typing
 from bot import keyboards
 
 
-EMOJI_NUMS = [
-    "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣",
-]
-
-
-async def start_handler(message: types.Message, state: FSMContext, session):
+async def back_reply_handler(message: types.Message, state: FSMContext, session):
     await state.clear()
     async with session() as open_session:
         admins: typing.List[models.sql.Admin] = await open_session.execute(select(
@@ -38,7 +29,7 @@ async def start_handler(message: types.Message, state: FSMContext, session):
     )
 
 
-async def back_to_records_handler(callback: types.CallbackQuery, state: FSMContext, session):
+async def back_to_records_handler(callback: types.CallbackQuery, session):
     await callback.answer()
     async with session() as open_session:
         user: models.sql.User = await open_session.execute(select(
@@ -55,13 +46,12 @@ async def back_to_records_handler(callback: types.CallbackQuery, state: FSMConte
     if datetime_now.day < 10:
         datetime_now_day = f"0{datetime_now.day}"
 
-    response = requests.get(
-        f"https://api.yclients.com/api/v1/records/{user.company_id}?page=1&count=500&start_date={datetime_now.year}-{datetime_now_month}-{datetime_now_day}",
-        headers=config.YCLIENTS_HEADERS
+    response = await services.yclients.get_company_records(
+        user.company_id, datetime_now.year, datetime_now_month, datetime_now_day
     )
     records = []
 
-    for record in response.json()["data"]:
+    for record in response["data"]:
         if not record.get("client"):
             continue
         if record.get("deleted"):
@@ -96,7 +86,7 @@ async def back_to_records_handler(callback: types.CallbackQuery, state: FSMConte
     temp_array = []
     keyboard = InlineKeyboardBuilder()
     buttons = []
-    for e in EMOJI_NUMS[:len(records)]:
+    for e in config.EMOJI_NUMS[:len(records)]:
         btn = InlineKeyboardButton(
             text=e,
             callback_data=e
@@ -127,6 +117,7 @@ async def back_to_records_handler(callback: types.CallbackQuery, state: FSMConte
                 f"- - - - - - - - - - - - - - -" \
                 f"\n\n"
 
+    keyboard.adjust(3)
     btn = InlineKeyboardButton(
         text="◀️ Назад",
         callback_data="back_to_main"
@@ -136,7 +127,7 @@ async def back_to_records_handler(callback: types.CallbackQuery, state: FSMConte
     await callback.message.edit_text(
         text=text,
         parse_mode="HTML",
-        reply_markup=keyboard.as_markup(width=3)
+        reply_markup=keyboard.as_markup()
     )
 
 
@@ -160,7 +151,8 @@ async def back_to_main(callback: types.CallbackQuery, state: FSMContext, session
         reply_markup=keyboard
     )
 
+
 def setup(dp: Dispatcher):
-    dp.message.register(start_handler, F.text == "◀️ Назад")
+    dp.message.register(back_reply_handler, F.text == "◀️ Назад")
     dp.callback_query.register(back_to_records_handler, F.data == "back_to_records")
     dp.callback_query.register(back_to_main, F.data == "back_to_main")

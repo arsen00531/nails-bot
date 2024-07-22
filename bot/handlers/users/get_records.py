@@ -1,22 +1,16 @@
 from aiogram import types, Dispatcher
-from aiogram.filters import CommandStart, Command
 from bot import keyboards, config, filters
-from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton, ReplyKeyboardBuilder, KeyboardButton
-import tools
+from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 from sqlalchemy import select
 from bot import models
 from datetime import datetime
 from aiogram import F
-import requests
 import pytz
-from bot.services.haversine_formula import get_nearest_location
 import typing
-
-
+from bot import services
 
 
 async def start_handler(message: types.Message, session):
-
     async with session() as open_session:
         user: models.sql.User = await open_session.execute(select(
             models.sql.User).filter_by(id=message.from_user.id))
@@ -36,13 +30,12 @@ async def start_handler(message: types.Message, session):
     if datetime_now.day < 10:
         datetime_now_day = f"0{datetime_now.day}"
 
-    response = requests.get(
-        f"https://api.yclients.com/api/v1/records/{user.company_id}?page=1&count=500&start_date={datetime_now.year}-{datetime_now_month}-{datetime_now_day}",
-        headers=config.YCLIENTS_HEADERS
+    response = await services.yclients.get_company_records(
+        user.company_id, datetime_now.year, datetime_now_month, datetime_now_day
     )
     records = []
 
-    for record in response.json()["data"]:
+    for record in response["data"]:
         if not record.get("client"):
             continue
         if record.get("deleted"):
@@ -104,7 +97,6 @@ async def start_handler(message: types.Message, session):
                  f"\n\n"
 
     keyboard.adjust(3)
-
     btn = InlineKeyboardButton(
         text="◀️ Назад",
         callback_data="back_to_main"

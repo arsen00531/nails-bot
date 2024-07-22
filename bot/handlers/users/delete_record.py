@@ -1,23 +1,16 @@
 import re
-
 from aiogram import types, Dispatcher
-from aiogram.filters import CommandStart, Command
-from bot import keyboards, config, filters
-from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton, ReplyKeyboardBuilder, KeyboardButton
-import tools
-from sqlalchemy import select
-from bot import models
+from bot import config, services
+from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 from datetime import datetime
 from aiogram import F
-import requests
 import pytz
-from bot.services.haversine_formula import get_nearest_location
+import aiohttp
+from bot.services import yclients
 
 
-
-async def start_handler(callback: types.CallbackQuery, session):
+async def delete_handler(callback: types.CallbackQuery):
     await callback.answer()
-    print(callback.data)
     record_id, company_id = re.findall("delete_record_(.+)_(.+)", callback.data)[0]
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
@@ -41,9 +34,10 @@ async def delete_approve_handler(callback: types.CallbackQuery, session):
     await callback.answer()
     record_id, company_id = re.findall("delete_approve_record_(.+)_(.+)", callback.data)[0]
     record_id = int(record_id)
-    r = requests.get(f"https://api.yclients.com/api/v1/company/{company_id}?showBookforms=1", headers=config.YCLIENTS_HEADERS)
 
-    web_app_info = types.WebAppInfo(url=r.json()["data"]["bookforms"][0]["url"])
+    response = await yclients.get_company(company_id, True)
+
+    web_app_info = types.WebAppInfo(url=response["data"]["bookforms"][0]["url"])
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
         text="Записаться",
@@ -55,11 +49,11 @@ async def delete_approve_handler(callback: types.CallbackQuery, session):
         callback_data="back_to_main"
     )
     keyboard.row(btn)
-    print(record_id, company_id)
-    r = requests.delete(
-        f"https://api.yclients.com/api/v1/record/{company_id}/{record_id}",
-        headers=config.YCLIENTS_HEADERS
-    )
+
+    async with aiohttp.ClientSession() as open_session:
+        url = f"https://api.yclients.com/api/v1/record/{company_id}/{record_id}"
+        await open_session.delete(url, headers=config.YCLIENTS_HEADERS)
+
     await callback.message.delete()
     await callback.message.answer(
         text="Запись <b>отменена</b>. Вы можете перезаписаться на другое время по кнопке ниже.",
@@ -68,13 +62,8 @@ async def delete_approve_handler(callback: types.CallbackQuery, session):
     )
 
 
-async def delete_cancel_handler(callback: types.CallbackQuery, session):
+async def delete_cancel_handler(callback: types.CallbackQuery):
     await callback.answer()
-
-    async with session() as open_session:
-        user: models.sql.User = await open_session.execute(select(
-            models.sql.User).filter_by(id=callback.from_user.id))
-        user = user.scalars().first()
 
     datetime_now = datetime.now(pytz.timezone('Europe/Moscow'))
     datetime_now_month = datetime_now.month
@@ -87,14 +76,10 @@ async def delete_cancel_handler(callback: types.CallbackQuery, session):
         datetime_now_day = f"0{datetime_now.day}"
     record_id, company_id = re.findall("delete_cancel_record_(.+)_(.+)", callback.data)[0]
 
-    r = requests.get(
-        f"https://api.yclients.com/api/v1/records/{company_id}?page=1&count=500&start_date={datetime_now.year}-{datetime_now_month}-{datetime_now_day}",
-        headers=config.YCLIENTS_HEADERS
+    response = await services.yclients.get_company_records(
+        company_id, datetime_now.year, datetime_now_month, datetime_now_day
     )
-
-    record = [record for record in r.json()["data"] if record["id"] == int(record_id)][0]
-
-    web_app_info = types.WebAppInfo(url=record["short_link"])
+    record = [record for record in response["data"] if record["id"] == int(record_id)][0]
 
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
@@ -114,11 +99,9 @@ async def delete_cancel_handler(callback: types.CallbackQuery, session):
     if datetime_minute < 10:
         datetime_minute = f"0{datetime_minute}"
 
-    r = requests.get(
-        f"https://api.yclients.com/api/v1/companies?id={company_id}",
-        headers=config.YCLIENTS_HEADERS
-    )
-    company = r.json()["data"][0]
+    response = await yclients.get_company(company_id)
+
+    company = response["data"]
     metro_station = re.findall(r"City\s+Nails\s+(.+)", company["title"])[0]
 
     record_titles = [s["title"] for s in record['services']]
@@ -147,7 +130,7 @@ async def delete_cancel_handler(callback: types.CallbackQuery, session):
 
 
 def setup(dp: Dispatcher):
-    dp.callback_query.register(start_handler, F.data.regexp(r"delete_record_(.+)"))
+    dp.callback_query.register(delete_handler, F.data.regexp(r"delete_record_(.+)"))
     dp.callback_query.register(delete_approve_handler, F.data.regexp(r"delete_approve_record_(.+)"))
     dp.callback_query.register(delete_cancel_handler, F.data.regexp(r"delete_cancel_record_(.+)"))
 

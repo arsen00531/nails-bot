@@ -1,24 +1,17 @@
-import enum
 import re
-
 from aiogram.fsm.context import FSMContext
 from aiogram import types, Dispatcher, F
-from aiogram.filters import Command
 from aiogram.types import CallbackQuery, Message
-from bot import keyboards
 import typing
 from bot import states
 from bot import models, filters
 from bot.services.broadcaster import BaseBroadcaster
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 from sqlalchemy import select
-import validators
-from bot import config
-import requests
+from bot.services import yclients
 
 
-
-async def broadcast_all_handler(callback: CallbackQuery, state: FSMContext, session):
+async def broadcast_all_handler(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
 
     keyboard = InlineKeyboardBuilder()
@@ -87,19 +80,17 @@ async def get_company_id_handler(message: types.Message, state: FSMContext):
         callback_data="back_to_main"
     )
     keyboard.row(btn_cancel)
-    r = requests.get(
-        "https://api.yclients.com/api/v1/companies?my=1&count=100",
-        headers=config.YCLIENTS_HEADERS
-    )
-    salons: list = r.json()["data"]
 
-    match_title = [i for i in salons if re.findall(message.text, i["title"], flags=re.I)]
-    match_address = [i for i in salons if re.findall(message.text, i["address"], flags=re.I)]
+    response = await yclients.get_companies()
+    companies: list = response["data"]
+
+    match_title = [i for i in companies if re.findall(message.text, i["title"], flags=re.I)]
+    match_address = [i for i in companies if re.findall(message.text, i["address"], flags=re.I)]
 
     if match_title:
-        salon = match_title[0]
+        company = match_title[0]
     elif match_address:
-        salon = match_address[0]
+        company = match_address[0]
     else:
         return await message.answer(
             text="Не нашли такой салон.",
@@ -108,8 +99,8 @@ async def get_company_id_handler(message: types.Message, state: FSMContext):
 
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
-        text=f"Рассылка {salon['title']}",
-        callback_data=f"broadcast_company_{salon['id']}"
+        text=f"Рассылка {company['title']}",
+        callback_data=f"broadcast_company_{company['id']}"
     )
     keyboard.row(btn)
     btn_cancel = InlineKeyboardButton(
@@ -118,7 +109,7 @@ async def get_company_id_handler(message: types.Message, state: FSMContext):
     )
     keyboard.row(btn_cancel)
     await message.answer(
-        text=f"Для запуска рассылки в {salon['title']} нажмите кнопку ниже.",
+        text=f"Для запуска рассылки в {company['title']} нажмите кнопку ниже.",
         reply_markup=keyboard.as_markup()
     )
 
@@ -168,25 +159,22 @@ async def run_broadcast_handler(callback: types.CallbackQuery, state: FSMContext
     )
     keyboard.row(btn_cancel)
 
-    name = "СЕТЬ"
+    company_name = "СЕТЬ"
     async with session() as open_session:
         if company_id:
             users: typing.List[int] = await open_session.execute(
                 select(models.sql.User.id).filter_by(company_id=int(company_id))
             )
             users = users.scalars().all()
-            r = requests.get(
-                f"https://api.yclients.com/api/v1/company/{company_id}",
-                headers=config.YCLIENTS_HEADERS
-            )
-            name = r.json()["data"]["title"]
+            response = await yclients.get_company(company_id)
+            company_name = response["data"]["title"]
         else:
             users: typing.List[int] = await open_session.execute(select(models.sql.User.id))
             users = users.scalars().all()
 
     users = set(users)
     await callback.message.answer(
-        text=f"Рассылка запущена в <b>{name}</b>. Кол-во пользователей: {len(users)}",
+        text=f"Рассылка запущена в <b>{company_name}</b>. Кол-во пользователей: {len(users)}",
         reply_markup=keyboard.as_markup(),
         parse_mode="HTML"
     )
@@ -195,7 +183,7 @@ async def run_broadcast_handler(callback: types.CallbackQuery, state: FSMContext
     success_count = await broadcaster.run()
     await callback.message.answer(
         "Рассылка завершилась в <b>{}</b>.\n"
-        "Отправлено сообщений: {} / {}".format(name, success_count, len(users)),
+        "Отправлено сообщений: {} / {}".format(company_name, success_count, len(users)),
         parse_mode="HTML"
     )
 

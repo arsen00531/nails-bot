@@ -7,8 +7,6 @@ from aiogram.fsm.context import FSMContext
 from bot import models, filters, states
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton, ReplyKeyboardBuilder, KeyboardButton
 from aiogram import F
-import requests
-from bot import config
 import re
 import validators
 
