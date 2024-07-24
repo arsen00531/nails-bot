@@ -91,7 +91,7 @@ async def get_msg_handler(message: types.Message, state: FSMContext, session):
             chat_id=state_data["chat_id"],
             text=f"Сообщение от: <b>{message.from_user.full_name[:30]}</b>"
                  f"\n"
-                 f"Номер телефона: <code>+{user.phone}</code>",
+                 f"Номер телефона: <i>+{user.phone}</i>",
             parse_mode="HTML"
         )
 
