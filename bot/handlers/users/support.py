@@ -79,7 +79,7 @@ async def get_msg_handler(message: types.Message, state: FSMContext, session):
     )
     keyboard.row(btn)
 
-    if (message.from_user.id in admins_id) or (message.from_user.id in config.BOT_ADMINS):
+    if message.from_user.id in admins_id:
         company_title = [a.company_title for a in admins if a.id == message.from_user.id][0]
         await message.bot.send_message(
             chat_id=state_data["chat_id"],
