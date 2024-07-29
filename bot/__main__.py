@@ -2,6 +2,7 @@ import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher, types
+
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from bot import middlewares, handlers, filters
@@ -10,6 +11,7 @@ from bot.services import commands_setter, admin_notificator, logger
 import database
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from bot.services.scheduler import notify_sender
+from aiogram.client.default import DefaultBotProperties
 
 
 async def main():
@@ -23,7 +25,7 @@ async def main():
 
     session = await database.manager.create_async_session(db)
 
-    bot = Bot(token=config.BOT_TOKEN)
+    bot = Bot(token=config.BOT_TOKEN, default=DefaultBotProperties(parse_mode='HTML'))
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage, session=session)
 

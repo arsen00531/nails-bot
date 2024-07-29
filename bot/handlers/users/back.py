@@ -9,6 +9,7 @@ from aiogram.fsm.context import FSMContext
 import pytz
 import typing
 from bot import keyboards
+import tools
 
 
 async def back_reply_handler(message: types.Message, state: FSMContext, session):
@@ -22,11 +23,15 @@ async def back_reply_handler(message: types.Message, state: FSMContext, session)
         keyboard = keyboards.reply.main_admin.keyboard
     else:
         keyboard = keyboards.reply.main.keyboard
+    msg_text = await tools.filer.read_txt("start_auth")
+    photo = types.FSInputFile("bot/data/images/start.jpg")
 
-    await message.answer(
-        text="Здравствуйте, вас приветствует сеть салонов City Nails.",
+    await message.answer_photo(
+        photo=photo,
+        caption=msg_text,
         reply_markup=keyboard
     )
+
 
 
 async def back_to_records_handler(callback: types.CallbackQuery, session):
@@ -145,9 +150,12 @@ async def back_to_main(callback: types.CallbackQuery, state: FSMContext, session
         keyboard = keyboards.reply.main_admin.keyboard
     else:
         keyboard = keyboards.reply.main.keyboard
+    msg_text = await tools.filer.read_txt("start_auth")
+    photo = types.FSInputFile("bot/data/images/start.jpg")
 
-    await callback.message.answer(
-        text="Здравствуйте, вас приветствует сеть салонов City Nails.",
+    await callback.message.answer_photo(
+        photo=photo,
+        caption=msg_text,
         reply_markup=keyboard
     )
 

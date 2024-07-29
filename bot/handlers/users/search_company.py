@@ -10,14 +10,16 @@ import re
 async def search_company_handler(message: types.Message, state: FSMContext):
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
-        text="◀️ Назад",
+        text="Выход",
         callback_data="back_to_main"
     )
     keyboard.row(btn)
 
     await message.answer(
-        text="Напишите название метро (Менделеевская, Сухаревская)"
-             " или название улицы (Новослободская, Тверская-Ямская)",
+        text="Отправьте <b>станцию метро</b>\n"
+             "<i>(например: Менделеевская)</i>\n\n"
+             "Или <b>название улицы</b> салона\n"
+             "<i>(например: Тверская-Ямская)</i>",
         reply_markup=keyboard.as_markup()
     )
     await state.set_state(FindCompanyStates.get_data)
@@ -38,7 +40,7 @@ async def get_data_handler(message: types.Message, state: FSMContext):
     else:
         keyboard = InlineKeyboardBuilder()
         btn = InlineKeyboardButton(
-            text="◀️ Назад",
+            text="Выход",
             callback_data="back_to_main"
         )
         keyboard.row(btn)
@@ -47,21 +49,36 @@ async def get_data_handler(message: types.Message, state: FSMContext):
             reply_markup=keyboard.as_markup()
         )
 
-    web_app_info = types.WebAppInfo(url=company["bookforms"][0]["url"])
     keyboard = InlineKeyboardBuilder()
-    btn = InlineKeyboardButton(
+
+    btn_1 = InlineKeyboardButton(
+        text="Написать администратору 📩",
+        callback_data=f"chat_answer_to_{company['id']}"
+    )
+    keyboard.row(btn_1)
+    btn_2 = InlineKeyboardButton(
+        text="Подробнее",
+        url="https://citynails.studio/"
+    )
+
+    web_app_info = types.WebAppInfo(url=company["bookforms"][0]["url"])
+    btn_3 = InlineKeyboardButton(
         text="Записаться",
         web_app=web_app_info
     )
-    keyboard.row(btn)
+    keyboard.row(btn_2, btn_3)
+
     btn = InlineKeyboardButton(
-        text="◀️ Назад",
+        text="Выход",
         callback_data="back_to_main"
     )
     keyboard.row(btn)
 
-    await message.answer(
-        text=company["title"],
+    await message.answer_venue(
+        title=company["title"],
+        address=company["address"],
+        latitude=company["coordinate_lat"],
+        longitude=company["coordinate_lon"],
         reply_markup=keyboard.as_markup()
     )
 

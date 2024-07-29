@@ -22,7 +22,7 @@ async def location_handler(message: types.Message):
         company_id = company["id"]
         
         btn = InlineKeyboardButton(
-            text=f"{company_title} >",
+            text=f"{company_title}",
             callback_data=f"near_company_{company_id}"
         )
         keyboard.row(btn)
@@ -33,8 +33,9 @@ async def location_handler(message: types.Message):
     )
     keyboard.row(btn)
 
-    await message.answer(
-        text="Ближайшие салоны:",
+    photo = types.FSInputFile("bot/data/images/nearest_company.png")
+    await message.answer_photo(
+        photo=photo,
         reply_markup=keyboard.as_markup()
     )
 
@@ -49,17 +50,27 @@ async def select_company_handler(callback: types.CallbackQuery):
     company_id = re.findall(r"near_company_(.+)", callback.data)[0]
     company = [c for c in companies if c["id"] == int(company_id)][0]
 
-    web_app_info = types.WebAppInfo(url=company["bookforms"][0]["url"])
-
     keyboard = InlineKeyboardBuilder()
-    btn = InlineKeyboardButton(
+
+    btn_1 = InlineKeyboardButton(
+        text="Написать администратору 📩",
+        callback_data=f"chat_answer_to_{company_id}"
+    )
+    keyboard.row(btn_1)
+    btn_2 = InlineKeyboardButton(
+        text="Подробнее",
+        url="https://citynails.studio/"
+    )
+
+    web_app_info = types.WebAppInfo(url=company["bookforms"][0]["url"])
+    btn_3 = InlineKeyboardButton(
         text="Записаться",
         web_app=web_app_info
     )
+    keyboard.row(btn_2, btn_3)
 
-    keyboard.row(btn)
     btn = InlineKeyboardButton(
-        text="◀️ Назад",
+        text="Выход",
         callback_data="back_to_main"
     )
     keyboard.row(btn)

@@ -1,5 +1,7 @@
 from aiogram import types, Dispatcher
 from aiogram.filters import CommandStart
+
+import tools.filer
 from bot import keyboards, config
 from sqlalchemy import select
 from bot import models
@@ -24,20 +26,24 @@ async def start_handler(message: types.Message, session):
         admins = admins.scalars().all()
 
     if not user:
-        await message.answer(
-            text="Здравствуйте, вас приветствует сеть салонов City Nails. Для начала поделитесь своим номером"
-                 " телефона, нажав по кнопке ниже.",
+        msg_text = await tools.filer.read_txt("start")
+        photo = types.FSInputFile("bot/data/images/start.jpg")
+        await message.answer_photo(
+            photo=photo,
+            caption=msg_text,
             reply_markup=keyboard
         )
     else:
-
         if (message.from_user.id in config.BOT_ADMINS) or (message.from_user.id in admins):
             keyboard = keyboards.reply.main_admin.keyboard
         else:
             keyboard = keyboards.reply.main.keyboard
+        msg_text = await tools.filer.read_txt("start_auth")
+        photo = types.FSInputFile("bot/data/images/start.jpg")
 
-        await message.answer(
-            text="Здравствуйте, вас приветствует сеть салонов City Nails.",
+        await message.answer_photo(
+            photo=photo,
+            caption=msg_text,
             reply_markup=keyboard
         )
 

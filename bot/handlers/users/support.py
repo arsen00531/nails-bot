@@ -52,7 +52,7 @@ async def chat_answer_handler(callback: types.CallbackQuery, state: FSMContext):
     chat_id = int(re.findall(r"chat_answer_to_(.+)", callback.data)[0])
 
     await callback.message.answer(
-        text="Введите ответ",
+        text="Введите cообщение",
     )
     await state.update_data(chat_id=chat_id)
     await state.set_state(states.AdminSupportStates.get_msg)
