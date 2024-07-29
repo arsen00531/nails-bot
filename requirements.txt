@@ -1,4 +1,4 @@
-aiogram==3.1.0
+aiogram==3.8.0
 environs>=9.5.0
 SQLAlchemy>=1.4.36
 asyncpg>=0.25.0
