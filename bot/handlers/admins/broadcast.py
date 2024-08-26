@@ -15,6 +15,24 @@ async def broadcast_all_handler(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
 
     keyboard = InlineKeyboardBuilder()
+    btn_1 = InlineKeyboardButton(
+        text="Общая",
+        callback_data="broadcast_all_all"
+    )
+    btn_2 = InlineKeyboardButton(
+        text="Комбо услуга",
+        callback_data="broadcast_all_combo"
+    )
+    keyboard.row(btn_1, btn_2)
+    btn_3 = InlineKeyboardButton(
+        text="Новая услуга",
+        callback_data="broadcast_all_new_service"
+    )
+    btn_4 = InlineKeyboardButton(
+        text="Новый салон",
+        callback_data="broadcast_all_new_company"
+    )
+    keyboard.row(btn_3, btn_4)
     btn_cancel = InlineKeyboardButton(
         text="◀️ Назад",
         callback_data="back_to_main"
@@ -22,13 +40,46 @@ async def broadcast_all_handler(callback: CallbackQuery, state: FSMContext):
     keyboard.row(btn_cancel)
 
     await callback.message.edit_text(
-        "[1/2] Пришлите мне сообщение, которое хотите отправить.",
+        "Выберите необходимую категорию рассылки ниже 👇",
         reply_markup=keyboard.as_markup()
     )
-    await state.set_state(states.BroadcastStates.get_msg)
 
 
-async def broadcast_company_id_handler(callback: CallbackQuery, state: FSMContext, session):
+async def broadcast_company_handler(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+
+    keyboard = InlineKeyboardBuilder()
+    btn_1 = InlineKeyboardButton(
+        text="Общая",
+        callback_data="broadcast_company_all"
+    )
+    btn_2 = InlineKeyboardButton(
+        text="Комбо услуга",
+        callback_data="broadcast_company_combo"
+    )
+    keyboard.row(btn_1, btn_2)
+    btn_3 = InlineKeyboardButton(
+        text="Новая услуга",
+        callback_data="broadcast_company_new_service"
+    )
+    btn_4 = InlineKeyboardButton(
+        text="Новый салон",
+        callback_data="broadcast_company_new_company"
+    )
+    keyboard.row(btn_3, btn_4)
+    btn_cancel = InlineKeyboardButton(
+        text="◀️ Назад",
+        callback_data="back_to_main"
+    )
+    keyboard.row(btn_cancel)
+
+    await callback.message.edit_text(
+        "Выберите необходимую категорию рассылки ниже 👇",
+        reply_markup=keyboard.as_markup()
+    )
+
+
+async def broadcast_all_all_handler(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
 
     keyboard = InlineKeyboardBuilder()
@@ -42,6 +93,98 @@ async def broadcast_company_id_handler(callback: CallbackQuery, state: FSMContex
         "[1/2] Пришлите мне сообщение, которое хотите отправить.",
         reply_markup=keyboard.as_markup()
     )
+    await state.set_state(states.BroadcastStates.get_msg)
+
+
+async def broadcast_all_spec_handler(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+
+    broadcast_spec = re.findall(r"broadcast_all_(.+)", callback.data)[0]
+
+    keyboard = InlineKeyboardBuilder()
+    btn_cancel = InlineKeyboardButton(
+        text="◀️ Назад",
+        callback_data="back_to_main"
+    )
+    keyboard.row(btn_cancel)
+
+    await callback.message.edit_text(
+        "[1/2] Пришлите мне текст сообщения, которое хотите отправить.",
+        reply_markup=keyboard.as_markup()
+    )
+    await state.update_data(dict(broadcast_spec=broadcast_spec))
+    await state.set_state(states.BroadcastStates.get_text)
+
+
+async def broadcast_company_spec_handler(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+
+    broadcast_spec = re.findall(r"broadcast_company_(.+)", callback.data)[0]
+
+    keyboard = InlineKeyboardBuilder()
+    btn_cancel = InlineKeyboardButton(
+        text="◀️ Назад",
+        callback_data="back_to_main"
+    )
+    keyboard.row(btn_cancel)
+
+    keyboard = InlineKeyboardBuilder()
+    btn_cancel = InlineKeyboardButton(
+        text="◀️ Назад",
+        callback_data="back_to_main"
+    )
+    keyboard.row(btn_cancel)
+
+    await callback.message.edit_text(
+        text="Теперь укажите ключевое слово салона, которое указано в названии ЛК YClients. "
+             "Например: Менделеевская, Проспект Мира",
+        reply_markup=keyboard.as_markup()
+    )
+
+    await state.update_data(dict(broadcast_spec=broadcast_spec))
+    await state.set_state(states.BroadcastStates.get_company_id)
+
+
+async def get_text_handler(message: Message, state: FSMContext):
+    state_data = await state.get_data()
+    broadcast_spec: str = state_data.get("broadcast_spec")
+
+    photo = types.FSInputFile(f"bot/data/images/{broadcast_spec}.jpg")
+    send_message = await message.answer_photo(
+        photo=photo,
+        caption=message.html_text
+    )
+    keyboard = InlineKeyboardBuilder()
+    btn_start = InlineKeyboardButton(
+        text="Запустить", callback_data="run_broadcast"
+    )
+    btn_cancel = InlineKeyboardButton(
+        text="◀️ Назад",
+        callback_data="back_to_main"
+    )
+    keyboard.row(btn_start)
+    keyboard.row(btn_cancel)
+
+    await message.answer(
+        "[2/2] Запустить расссылку?",
+        reply_markup=keyboard.as_markup(),
+    )
+    await state.update_data(dict(message=send_message))
+    await state.set_state(states.BroadcastStates.broadcast)
+
+
+async def broadcast_company_id_handler(callback: CallbackQuery, state: FSMContext, session):
+    await callback.answer()
+    state_data = await state.get_data()
+    broadcast_spec: str = state_data.get("broadcast_spec")
+
+    keyboard = InlineKeyboardBuilder()
+    btn_cancel = InlineKeyboardButton(
+        text="◀️ Назад",
+        callback_data="back_to_main"
+    )
+    keyboard.row(btn_cancel)
+
     company_id = re.findall(r"broadcast_company_(\d+)", callback.data)
     if company_id:
         await state.update_data(dict(
@@ -51,10 +194,23 @@ async def broadcast_company_id_handler(callback: CallbackQuery, state: FSMContex
         await state.update_data(dict(
             company_id=company_id
         ))
-    await state.set_state(states.BroadcastStates.get_msg)
+
+    if broadcast_spec:
+        await callback.message.edit_text(
+            "[1/2] Пришлите мне текст сообщения, которое хотите отправить.",
+            reply_markup=keyboard.as_markup()
+        )
+        await state.set_state(states.BroadcastStates.get_text)
+    else:
+        await callback.message.edit_text(
+            "[1/2] Пришлите мне сообщение, которое хотите отправить.",
+            reply_markup=keyboard.as_markup()
+        )
+
+        await state.set_state(states.BroadcastStates.get_msg)
 
 
-async def broadcast_company_handler(callback: CallbackQuery, state: FSMContext, session):
+async def broadcast_company_all_handler(callback: CallbackQuery, state: FSMContext, session):
     await callback.answer()
     keyboard = InlineKeyboardBuilder()
     btn_cancel = InlineKeyboardButton(
@@ -73,7 +229,10 @@ async def broadcast_company_handler(callback: CallbackQuery, state: FSMContext, 
 
 
 async def get_company_id_handler(message: types.Message, state: FSMContext):
+    state_data = await state.get_data()
+    broadcast_spec: str = state_data.get("broadcast_spec")
     await state.clear()
+    await state.update_data(dict(broadcast_spec=broadcast_spec))
     keyboard = InlineKeyboardBuilder()
     btn_cancel = InlineKeyboardButton(
         text="◀️ Назад",
@@ -115,7 +274,6 @@ async def get_company_id_handler(message: types.Message, state: FSMContext):
 
 
 async def get_msg_handler(message: types.Message, state: FSMContext):
-    state_data = await state.get_data()
     broadcaster = BaseBroadcaster(
         chats_id=[message.from_user.id],
         message=message,
@@ -193,14 +351,32 @@ def setup(dp: Dispatcher):
         broadcast_all_handler, F.data == "broadcast_all",
     )
     dp.callback_query.register(
+        broadcast_all_spec_handler,
+        F.data.in_({"broadcast_all_combo", "broadcast_all_new_service", "broadcast_all_new_company"})
+    )
+    dp.callback_query.register(
+        broadcast_company_spec_handler,
+        F.data.in_({"broadcast_company_combo", "broadcast_company_new_service", "broadcast_company_new_company"})
+    )
+    dp.callback_query.register(
+        broadcast_all_all_handler, F.data == "broadcast_all_all",
+    )
+    dp.callback_query.register(
         broadcast_company_handler, F.data == "broadcast_company",
-   )
+    )
+    dp.callback_query.register(
+        broadcast_company_all_handler, F.data == "broadcast_company_all",
+    )
     dp.callback_query.register(
         broadcast_company_id_handler, F.data.regexp(r"broadcast_company_(\d+)"),
     )
     dp.message.register(
         get_company_id_handler,
         states.BroadcastStates.get_company_id,
+    )
+    dp.message.register(
+        get_text_handler,
+        states.BroadcastStates.get_text,
     )
     dp.message.register(
         get_msg_handler,
