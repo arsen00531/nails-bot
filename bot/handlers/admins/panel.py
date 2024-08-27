@@ -17,7 +17,7 @@ async def start_handler(message: types.Message, session):
 
     if message.from_user.id in config.BOT_ADMINS:
         btn_2 = InlineKeyboardButton(
-            text=f"Рассылка СЕТЬ",
+            text=f"Рассылка",
             callback_data="broadcast_all"
         )
         keyboard.row(btn_2)

@@ -90,7 +90,8 @@ async def broadcast_all_all_handler(callback: CallbackQuery, state: FSMContext):
     keyboard.row(btn_cancel)
 
     await callback.message.edit_text(
-        "[1/2] Пришлите мне сообщение, которое хотите отправить.",
+        "[1/2] Пришлите сюда сообщение, которое хотите отправить ✉️\n\n"
+        "<i>При необходимости добавления кнопок — воспользуйтесь сервисом @posted</i>",
         reply_markup=keyboard.as_markup()
     )
     await state.set_state(states.BroadcastStates.get_msg)
@@ -203,7 +204,8 @@ async def broadcast_company_id_handler(callback: CallbackQuery, state: FSMContex
         await state.set_state(states.BroadcastStates.get_text)
     else:
         await callback.message.edit_text(
-            "[1/2] Пришлите мне сообщение, которое хотите отправить.",
+            "[1/2] Пришлите сюда сообщение, которое хотите отправить ✉️\n\n"
+            "<i>При необходимости добавления кнопок — воспользуйтесь сервисом @posted</i>",
             reply_markup=keyboard.as_markup()
         )
 
