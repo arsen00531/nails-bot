@@ -17,7 +17,7 @@ async def start_handler(message: types.Message, session):
 
     if message.from_user.id in config.BOT_ADMINS:
         btn_2 = InlineKeyboardButton(
-            text=f"Рассылка",
+            text=f"Рассылка СЕТЬ",
             callback_data="broadcast_all"
         )
         keyboard.row(btn_2)
@@ -63,7 +63,7 @@ async def start_handler(message: types.Message, session):
         response = await yclients.get_company(admin.company_id)
 
         btn_1 = InlineKeyboardButton(
-            text=f"Рассылка ФИЛИАЛ",
+            text=f"Рассылка",
             callback_data=f"broadcast_company_{admin.company_id}"
         )
         keyboard.row(btn_1)
