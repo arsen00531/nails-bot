@@ -6,9 +6,10 @@ from bot import models
 from aiogram import F
 import typing
 from bot.services import yclients
+from aiogram.fsm.context import FSMContext
 
 
-async def start_handler(message: types.Message, session):
+async def start_handler(message: types.Message, session, state: FSMContext):
     async with session() as open_session:
         admins: typing.List[int] = await open_session.execute(select(models.sql.Admin.id))
         admins = admins.scalars().all()
@@ -61,10 +62,11 @@ async def start_handler(message: types.Message, session):
                 admin = admin.scalars().first()
 
         response = await yclients.get_company(admin.company_id)
+        await state.update_data(company_id=admin.company_id)
 
         btn_1 = InlineKeyboardButton(
             text=f"Рассылка",
-            callback_data=f"broadcast_company_{admin.company_id}"
+            callback_data=f"broadcast_company"
         )
         keyboard.row(btn_1)
         btn_2 = InlineKeyboardButton(
