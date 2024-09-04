@@ -26,8 +26,8 @@ async def support_handler(callback: types.CallbackQuery, state: FSMContext, sess
 
     if not user.company_id:
         return await callback.message.answer(
-            text="Не можем определить к какому салону вы относитесь."
-                 " Сделайте запись, чтобы связаться с нужным салоном"
+            text="Не можем определить к какой студии вы относитесь."
+                 " Сделайте запись, чтобы связаться с нужной студией"
         )
 
     keyboard = InlineKeyboardBuilder()

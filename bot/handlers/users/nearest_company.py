@@ -1,6 +1,8 @@
 from aiogram import types, Dispatcher
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 from aiogram import F
+from sqlalchemy import select
+from bot import models
 from bot.services.haversine_formula import get_nearest_location
 import re
 from bot.services import yclients
@@ -40,7 +42,7 @@ async def location_handler(message: types.Message):
     )
 
 
-async def select_company_handler(callback: types.CallbackQuery):
+async def select_company_handler(callback: types.CallbackQuery, session):
     await callback.answer()
     await callback.message.delete()
 
@@ -50,6 +52,11 @@ async def select_company_handler(callback: types.CallbackQuery):
     company_id = re.findall(r"near_company_(.+)", callback.data)[0]
     company = [c for c in companies if c["id"] == int(company_id)][0]
 
+    async with session() as open_session:
+        about_company = await open_session.execute(
+            select(models.sql.AboutCompany).filter_by(company_id=company_id))
+        about_company: models.sql.AboutCompany = about_company.scalars().first()
+
     keyboard = InlineKeyboardBuilder()
 
     btn_1 = InlineKeyboardButton(
@@ -57,10 +64,19 @@ async def select_company_handler(callback: types.CallbackQuery):
         callback_data=f"chat_answer_to_{company_id}"
     )
     keyboard.row(btn_1)
-    btn_2 = InlineKeyboardButton(
-        text="Подробнее",
-        url="https://citynails.studio/"
-    )
+
+    if about_company:
+        web_app_info = types.WebAppInfo(url=about_company.url)
+        btn_2 = InlineKeyboardButton(
+            text="Подробнее",
+            web_app=web_app_info
+        )
+    else:
+        web_app_info = types.WebAppInfo(url="https://citynails.studio/")
+        btn_2 = InlineKeyboardButton(
+            text="Подробнее",
+            web_app=web_app_info
+        )
 
     web_app_info = types.WebAppInfo(url=company["bookforms"][0]["url"])
     btn_3 = InlineKeyboardButton(

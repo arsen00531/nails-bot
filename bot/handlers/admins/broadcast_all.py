@@ -29,7 +29,7 @@ async def broadcast_all_handler(callback: CallbackQuery, state: FSMContext):
         callback_data="broadcast_all_new_service"
     )
     btn_4 = InlineKeyboardButton(
-        text="Новый салон",
+        text="Новая студия",
         callback_data="broadcast_all_new_company"
     )
     keyboard.row(btn_3, btn_4)

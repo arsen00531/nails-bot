@@ -71,7 +71,7 @@ async def add_admin_handler(message: types.Message, state: FSMContext, session: 
         )
 
     await message.answer(
-        text="Теперь укажите ключевое слово салона, которое указано в названии ЛК YClients. "
+        text="Теперь укажите ключевое слово студии, которое указано в названии ЛК YClients. "
              "Например: Менделеевская, Проспект Мира",
         reply_markup=keyboard.as_markup()
     )
@@ -103,12 +103,12 @@ async def get_company_id_handler(message: types.Message, state: FSMContext, sess
         company = match_address[0]
     else:
         return await message.answer(
-            text="Не нашли такой салон.",
+            text="Не нашли такую студию.",
             reply_markup=keyboard.as_markup()
         )
 
     await message.answer(
-        text=f"Новый админ <b>{state_data.get('admin_id')}</b> добавлен в салон <b>{company['title']}</b>!\n\n"
+        text=f"Новый админ <b>{state_data.get('admin_id')}</b> добавлен в студию <b>{company['title']}</b>!\n\n"
              "Удалить админа /deleteadmin",
         parse_mode="HTML",
         reply_markup=keyboard.as_markup()

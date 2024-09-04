@@ -4,6 +4,8 @@ from aiogram import F
 from aiogram.fsm.context import FSMContext
 from bot.states import FindCompanyStates
 from bot.services import yclients
+from sqlalchemy import select
+from bot import models
 import re
 
 
@@ -18,14 +20,14 @@ async def search_company_handler(message: types.Message, state: FSMContext):
     await message.answer(
         text="Отправьте <b>станцию метро</b>\n"
              "<i>(например: Менделеевская)</i>\n\n"
-             "Или <b>название улицы</b> салона\n"
+             "Или <b>название улицы</b> студии\n"
              "<i>(например: Тверская-Ямская)</i>",
         reply_markup=keyboard.as_markup()
     )
     await state.set_state(FindCompanyStates.get_data)
 
 
-async def get_data_handler(message: types.Message, state: FSMContext):
+async def get_data_handler(message: types.Message, state: FSMContext, session):
     await state.clear()
     response = await yclients.get_companies()
     companies = response["data"]
@@ -45,7 +47,7 @@ async def get_data_handler(message: types.Message, state: FSMContext):
         )
         keyboard.row(btn)
         return await message.answer(
-            text="Не нашли такой салон.",
+            text="Не нашли такую студию.",
             reply_markup=keyboard.as_markup()
         )
 
@@ -56,10 +58,24 @@ async def get_data_handler(message: types.Message, state: FSMContext):
         callback_data=f"chat_answer_to_{company['id']}"
     )
     keyboard.row(btn_1)
-    btn_2 = InlineKeyboardButton(
-        text="Подробнее",
-        url="https://citynails.studio/"
-    )
+
+    async with session() as open_session:
+        about_company = await open_session.execute(
+            select(models.sql.AboutCompany).filter_by(company_id=company['id']))
+        about_company: models.sql.AboutCompany = about_company.scalars().first()
+
+    if about_company:
+        web_app_info = types.WebAppInfo(url=about_company.url)
+        btn_2 = InlineKeyboardButton(
+            text="Подробнее",
+            web_app=web_app_info
+        )
+    else:
+        web_app_info = types.WebAppInfo(url="https://citynails.studio/")
+        btn_2 = InlineKeyboardButton(
+            text="Подробнее",
+            web_app=web_app_info
+        )
 
     web_app_info = types.WebAppInfo(url=company["bookforms"][0]["url"])
     btn_3 = InlineKeyboardButton(

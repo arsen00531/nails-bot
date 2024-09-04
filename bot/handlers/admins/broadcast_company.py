@@ -25,7 +25,7 @@ async def broadcast_company_handler(callback: CallbackQuery, state: FSMContext):
         callback_data="broadcast_company_new_service"
     )
     btn_4 = InlineKeyboardButton(
-        text="Новый салон",
+        text="Новая студия",
         callback_data="broadcast_company_new_company"
     )
     keyboard.row(btn_3, btn_4)
@@ -68,7 +68,7 @@ async def broadcast_company_spec_handler(callback: CallbackQuery, state: FSMCont
         await state.set_state(states.BroadcastStates.get_text)
     else:
         await callback.message.edit_text(
-            text="Теперь укажите ключевое слово салона, которое указано в названии ЛК YClients. "
+            text="Теперь укажите ключевое слово студии, которое указано в названии ЛК YClients. "
                  "Например: Менделеевская, Проспект Мира",
             reply_markup=keyboard.as_markup()
         )
@@ -97,7 +97,7 @@ async def broadcast_company_all_handler(callback: CallbackQuery, state: FSMConte
         await state.set_state(states.BroadcastStates.get_msg)
     else:
         await callback.message.edit_text(
-            text="Теперь укажите ключевое слово салона, которое указано в названии ЛК YClients. "
+            text="Теперь укажите ключевое слово студии, которое указано в названии ЛК YClients. "
                  "Например: Менделеевская, Проспект Мира",
             reply_markup=keyboard.as_markup()
         )
@@ -128,7 +128,7 @@ async def get_company_id_handler(message: types.Message, state: FSMContext):
         company = match_address[0]
     else:
         return await message.answer(
-            text="Не нашли такой салон.",
+            text="Не нашли такую студию.",
             reply_markup=keyboard.as_markup()
         )
 

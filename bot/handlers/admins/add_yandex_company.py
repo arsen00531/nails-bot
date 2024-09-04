@@ -22,7 +22,7 @@ async def yandex_company_handler(callback: types.CallbackQuery, state: FSMContex
     keyboard.row(btn)
 
     await callback.message.edit_text(
-        text="Пришлите мне ссылку на Яндекс отзывы вашего филиала.",
+        text="Пришлите мне ссылку отзывы вашего филиала.",
         reply_markup=keyboard.as_markup()
     )
     await state.update_data(dict(company_id=company_id))

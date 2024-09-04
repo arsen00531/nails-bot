@@ -7,11 +7,12 @@ from . import panel
 from . import add_yandex_company
 from . import broadcast_all
 from . import broadcast_company
+from . import add_about_company
 
 
 def setup(dp: Dispatcher):
     for module in (
             cancel, add_admin, stats, broadcast, panel, add_yandex_company,
-            broadcast_all, broadcast_company
+            broadcast_all, broadcast_company, add_about_company
     ):
         module.setup(dp)

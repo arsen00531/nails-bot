@@ -41,6 +41,12 @@ async def start_handler(message: types.Message, session, state: FSMContext):
         keyboard.row(btn)
 
         btn = InlineKeyboardButton(
+            text="Добавить подробнее",
+            callback_data="add_about"
+        )
+        keyboard.row(btn)
+
+        btn = InlineKeyboardButton(
             text="Статистика",
             callback_data="stats"
         )
@@ -70,7 +76,7 @@ async def start_handler(message: types.Message, session, state: FSMContext):
         )
         keyboard.row(btn_1)
         btn_2 = InlineKeyboardButton(
-            text=f"Отзывы Яндекс",
+            text=f"Отзывы",
             callback_data=f"yandex_company_{admin.company_id}"
         )
         keyboard.row(btn_2)
