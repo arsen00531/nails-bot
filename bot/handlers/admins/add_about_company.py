@@ -109,7 +109,7 @@ async def get_company_url_handler(message: types.Message, state: FSMContext, ses
 
     async with session() as open_session:
         about_company = await open_session.execute(
-            select(models.sql.AboutCompany).filter_by(company_id=company_id))
+            select(models.sql.AboutCompany).filter_by(company_id=int(company_id)))
         about_company: models.sql.AboutCompany = about_company.scalars().first()
 
         if about_company:

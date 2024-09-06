@@ -61,7 +61,7 @@ async def get_data_handler(message: types.Message, state: FSMContext, session):
 
     async with session() as open_session:
         about_company = await open_session.execute(
-            select(models.sql.AboutCompany).filter_by(company_id=company['id']))
+            select(models.sql.AboutCompany).filter_by(company_id=int(company['id'])))
         about_company: models.sql.AboutCompany = about_company.scalars().first()
 
     if about_company:

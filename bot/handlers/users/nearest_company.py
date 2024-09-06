@@ -54,7 +54,7 @@ async def select_company_handler(callback: types.CallbackQuery, session):
 
     async with session() as open_session:
         about_company = await open_session.execute(
-            select(models.sql.AboutCompany).filter_by(company_id=company_id))
+            select(models.sql.AboutCompany).filter_by(company_id=int(company_id)))
         about_company: models.sql.AboutCompany = about_company.scalars().first()
 
     keyboard = InlineKeyboardBuilder()
