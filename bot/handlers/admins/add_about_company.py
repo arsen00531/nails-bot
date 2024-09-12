@@ -18,7 +18,7 @@ async def add_about_company(callback: types.CallbackQuery, state: FSMContext):
     keyboard = InlineKeyboardBuilder()
     btn_2 = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn_2)
 
@@ -46,7 +46,7 @@ async def get_company_id_handler(message: types.Message, state: FSMContext, sess
         keyboard = InlineKeyboardBuilder()
         btn = InlineKeyboardButton(
             text="Выход",
-            callback_data="back_to_main"
+            callback_data="admin_panel"
         )
         keyboard.row(btn)
         return await message.answer(
@@ -61,7 +61,7 @@ async def get_company_id_handler(message: types.Message, state: FSMContext, sess
     keyboard.row(btn_1)
     btn_2 = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn_2)
 
@@ -76,7 +76,7 @@ async def add_about_company_handler(callback: types.CallbackQuery, state: FSMCon
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn)
 
@@ -95,7 +95,7 @@ async def get_company_url_handler(message: types.Message, state: FSMContext, ses
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn)
 

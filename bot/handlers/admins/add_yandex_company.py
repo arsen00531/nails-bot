@@ -17,7 +17,7 @@ async def yandex_company_handler(callback: types.CallbackQuery, state: FSMContex
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn)
 
@@ -36,7 +36,7 @@ async def get_company_url_handler(message: types.Message, state: FSMContext, ses
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn)
 

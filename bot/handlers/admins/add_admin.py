@@ -16,7 +16,7 @@ async def add_admin_cmd_handler(callback: types.CallbackQuery, state: FSMContext
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn)
 
@@ -37,11 +37,10 @@ async def add_admin_handler(message: types.Message, state: FSMContext, session: 
         admin = admin.scalars().first()
 
     if admin:
-
         keyboard = InlineKeyboardBuilder()
         btn = InlineKeyboardButton(
             text="◀️ Назад",
-            callback_data="back_to_main"
+            callback_data="admin_panel"
         )
         keyboard.row(btn)
         btn = InlineKeyboardButton(
@@ -57,7 +56,7 @@ async def add_admin_handler(message: types.Message, state: FSMContext, session: 
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn)
 
@@ -85,7 +84,7 @@ async def get_company_id_handler(message: types.Message, state: FSMContext, sess
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn)
 
@@ -129,7 +128,7 @@ async def delete_admin_cmd_handler(callback: types.CallbackQuery, state: FSMCont
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn)
 
@@ -146,7 +145,7 @@ async def delete_admin_handler(message: types.Message, state: FSMContext, sessio
     keyboard = InlineKeyboardBuilder()
     btn = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn)
 

@@ -35,7 +35,7 @@ async def broadcast_all_handler(callback: CallbackQuery, state: FSMContext):
     keyboard.row(btn_3, btn_4)
     btn_cancel = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn_cancel)
 
@@ -51,7 +51,7 @@ async def broadcast_all_all_handler(callback: CallbackQuery, state: FSMContext):
     keyboard = InlineKeyboardBuilder()
     btn_cancel = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn_cancel)
 
@@ -70,7 +70,7 @@ async def broadcast_all_spec_handler(callback: CallbackQuery, state: FSMContext)
     keyboard = InlineKeyboardBuilder()
     btn_cancel = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn_cancel)
 

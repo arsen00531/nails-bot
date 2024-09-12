@@ -31,7 +31,7 @@ async def broadcast_company_handler(callback: CallbackQuery, state: FSMContext):
     keyboard.row(btn_3, btn_4)
     btn_cancel = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn_cancel)
 
@@ -51,7 +51,7 @@ async def broadcast_company_spec_handler(callback: CallbackQuery, state: FSMCont
     keyboard = InlineKeyboardBuilder()
     btn_cancel = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn_cancel)
 
@@ -84,7 +84,7 @@ async def broadcast_company_all_handler(callback: CallbackQuery, state: FSMConte
     keyboard = InlineKeyboardBuilder()
     btn_cancel = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn_cancel)
 
@@ -112,7 +112,7 @@ async def get_company_id_handler(message: types.Message, state: FSMContext):
     keyboard = InlineKeyboardBuilder()
     btn_cancel = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn_cancel)
 
@@ -140,7 +140,7 @@ async def get_company_id_handler(message: types.Message, state: FSMContext):
     keyboard.row(btn)
     btn_cancel = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn_cancel)
     await message.answer(
@@ -157,7 +157,7 @@ async def broadcast_company_id_handler(callback: CallbackQuery, state: FSMContex
     keyboard = InlineKeyboardBuilder()
     btn_cancel = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn_cancel)
 

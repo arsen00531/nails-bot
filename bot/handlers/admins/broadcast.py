@@ -25,7 +25,7 @@ async def get_msg_handler(message: types.Message, state: FSMContext):
     )
     btn_cancel = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn_start)
     keyboard.row(btn_cancel)
@@ -53,7 +53,7 @@ async def get_text_handler(message: Message, state: FSMContext):
     )
     btn_cancel = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn_start)
     keyboard.row(btn_cancel)
@@ -78,7 +78,7 @@ async def run_broadcast_handler(callback: types.CallbackQuery, state: FSMContext
     keyboard = InlineKeyboardBuilder()
     btn_cancel = InlineKeyboardButton(
         text="◀️ Назад",
-        callback_data="back_to_main"
+        callback_data="admin_panel"
     )
     keyboard.row(btn_cancel)
 
