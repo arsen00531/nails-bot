@@ -35,7 +35,7 @@ async def location_handler(message: types.Message):
     )
     keyboard.row(btn)
 
-    photo = types.FSInputFile("bot/data/images/nearest_company.png")
+    photo = types.FSInputFile("bot/data/images/nearest_company.jpg")
     await message.answer_photo(
         photo=photo,
         reply_markup=keyboard.as_markup()
