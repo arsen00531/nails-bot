@@ -60,7 +60,7 @@ async def broadcast_all_all_handler(callback: CallbackQuery, state: FSMContext):
         "<i>При необходимости добавления кнопок — воспользуйтесь сервисом @posted</i>",
         reply_markup=keyboard.as_markup()
     )
-    await state.set_state(states.BroadcastStates.get_msg)
+    await state.set_state(states.BroadcastStates.get_button)
 
 
 async def broadcast_all_spec_handler(callback: CallbackQuery, state: FSMContext):

@@ -94,7 +94,7 @@ async def broadcast_company_all_handler(callback: CallbackQuery, state: FSMConte
             "<i>При необходимости добавления кнопок — воспользуйтесь сервисом @posted</i>",
             reply_markup=keyboard.as_markup()
         )
-        await state.set_state(states.BroadcastStates.get_msg)
+        await state.set_state(states.BroadcastStates.get_button)
     else:
         await callback.message.edit_text(
             text="Теперь укажите ключевое слово студии, которое указано в названии ЛК YClients. "
@@ -187,7 +187,7 @@ async def broadcast_company_id_handler(callback: CallbackQuery, state: FSMContex
             reply_markup=keyboard.as_markup()
         )
 
-        await state.set_state(states.BroadcastStates.get_msg)
+        await state.set_state(states.BroadcastStates.get_button)
 
 
 

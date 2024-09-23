@@ -6,3 +6,4 @@ class BroadcastStates(StatesGroup):
     get_text = State()
     broadcast = State()
     get_company_id = State()
+    get_button = State()
