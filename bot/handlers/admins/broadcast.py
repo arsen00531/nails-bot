@@ -10,7 +10,6 @@ from sqlalchemy import select
 from bot.services import yclients
 from tools import table
 from urllib.parse import urlparse
- 
 
 async def get_msg_handler(message: types.Message, state: FSMContext):
     textMessage = (await state.get_data())['get_button']
@@ -24,6 +23,7 @@ async def get_msg_handler(message: types.Message, state: FSMContext):
     names = parse[1]
     company_names = parse[2]
     urls = parse[3]
+    company_ids = parse[4]
     
     if last_message.photo:
         messageNew = await last_message.answer_photo(last_message.photo[-1].file_id, caption=textMessage, reply_markup=buttons)
@@ -59,6 +59,7 @@ async def get_msg_handler(message: types.Message, state: FSMContext):
     await state.update_data(buttons_name=names)
     await state.update_data(urls=urls)
     await state.update_data(company_names=company_names)
+    await state.update_data(company_ids=company_ids)
     await state.set_state(states.BroadcastStates.broadcast)
 
 
@@ -93,6 +94,7 @@ async def run_broadcast_handler(callback: types.CallbackQuery, state: FSMContext
     message: types.Message = state_data.get("message")
     buttons_name = state_data.get('buttons_name')
     company_names = state_data.get('company_names')
+    company_ids = state_data.get('company_ids')
     urls = state_data.get('urls')
     company_id = state_data.get("company_id")
 
@@ -145,7 +147,7 @@ async def run_broadcast_handler(callback: types.CallbackQuery, state: FSMContext
     )
 
     for i in range(len(buttons_name)):
-        table.addTableLink(buttons_name[i], urls[i], company_names[i], True)
+        table.addTableLink(buttons_name[i], urls[i], company_names[i], True, company_ids[i])
 
 async def get_button_handler(message: types.Message, state: FSMContext):
     keyboard = InlineKeyboardBuilder()
@@ -207,11 +209,6 @@ async def skip_button_handler(callback: CallbackQuery, state: FSMContext):
     await state.update_data(dict(message=last_message))
     await state.set_state(states.BroadcastStates.broadcast)
 
-async def web_app_message_handler(message: types.Message):
-    print('lox')
-    data = message.web_app_data.data
-    await message.answer(f"Получены данные из Web App: {data}")
-
 async def parseButtons(message: str):
     if not(message):
         return
@@ -221,15 +218,16 @@ async def parseButtons(message: str):
     keyboard = InlineKeyboardBuilder()
     names = []
     company_names = []
+    company_ids = []
     urls = []
     for link in message.split('|'):
         spl = link.split('-')
         if len(spl) != 3:
             return "link or name are invalid"
         else:
-            button_name = spl[0]
-            url = spl[1].replace(' ', '')
-            name = spl[2]
+            button_name = spl[0].strip()
+            url = spl[1].replace(' ', '').strip()
+            name = spl[2].strip()
             if len(button_name) == 0:
                 return 'text button is invalid'
             if not(is_valid_url(url)):
@@ -240,20 +238,23 @@ async def parseButtons(message: str):
 
             btn = InlineKeyboardButton(
                 text=button_name,
-                web_app=WebAppInfo(url="https://www.connectbirga.ru/nails"),
+                web_app=WebAppInfo(url=f"https://nailsbot.tw1.su?link_name={name}&url={url}"),
             )
             keyboard.row(btn)
             urls.append(url)
 
-            if url.find('https://n812348.yclients.com/company/') != -1:
-                url = url.replace('https://n812348.yclients.com/company/', '')
+            if url.find('.yclients.com/company') != -1:
+                url = url.replace('.yclients.com/company', '')
+                url = url.replace('https://', '')
                 url = url.split('/')
-                company = await yclients.get_company(int(url[0]))
+                company_id = int(url[1])
+                company = await yclients.get_company(company_id)
                 company_names.append(company["data"]["public_title"].replace('City Nails ', ''))
+                company_ids.append(company_id)
             else:
                 company_names.append('Другое')
     
-    return keyboard.as_markup(), names, company_names, urls
+    return keyboard.as_markup(), names, company_names, urls, company_ids
 
 def is_valid_url(url: str):
     parsed_url = urlparse(url)
@@ -276,10 +277,6 @@ def setup(dp: Dispatcher):
     dp.callback_query.register(
         skip_button_handler,
         F.data == "skip_button",
-    )
-    dp.message.register(
-        web_app_message_handler,
-        F.web_app_data,
     )
     dp.callback_query.register(
         run_broadcast_handler,
