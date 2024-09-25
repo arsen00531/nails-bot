@@ -61,8 +61,7 @@ async def broadcast_company_spec_handler(callback: CallbackQuery, state: FSMCont
         await callback.message.edit_text(
             "[1/2] Пришлите сюда сообщение, которое хотите отправить ✉️\n\n"
             "<i>Учтите, что к сообщению нельзя добавить кнопки и фотографии. "
-            "При необходимости добавления кнопок — создайте рассылку категории "
-            "«Общая» и воспользуйтесь сервисом @posted</i>",
+            "При необходимости добавления кнопок — создайте рассылку категории «Общая»",
             reply_markup=keyboard.as_markup()
         )
         await state.set_state(states.BroadcastStates.get_text)
@@ -90,8 +89,7 @@ async def broadcast_company_all_handler(callback: CallbackQuery, state: FSMConte
 
     if company_id:
         await callback.message.edit_text(
-            "[1/2] Пришлите сюда сообщение, которое хотите отправить ✉️\n\n"
-            "<i>При необходимости добавления кнопок — воспользуйтесь сервисом @posted</i>",
+            "[1/2] Пришлите сюда сообщение, которое хотите отправить ✉️\n\n",
             reply_markup=keyboard.as_markup()
         )
         await state.set_state(states.BroadcastStates.get_button)
@@ -175,15 +173,13 @@ async def broadcast_company_id_handler(callback: CallbackQuery, state: FSMContex
         await callback.message.edit_text(
             "[1/2] Пришлите сюда сообщение, которое хотите отправить ✉️\n\n"
             "<i>Учтите, что к сообщению нельзя добавить кнопки и фотографии. "
-            "При необходимости добавления кнопок — создайте рассылку категории "
-            "«Общая» и воспользуйтесь сервисом @posted</i>",
+            "При необходимости добавления кнопок — создайте рассылку категории «Общая»",
             reply_markup=keyboard.as_markup()
         )
         await state.set_state(states.BroadcastStates.get_text)
     else:
         await callback.message.edit_text(
-            "[1/2] Пришлите сюда сообщение, которое хотите отправить ✉️\n\n"
-            "<i>При необходимости добавления кнопок — воспользуйтесь сервисом @posted</i>",
+            "[1/2] Пришлите сюда сообщение, которое хотите отправить ✉️\n\n",
             reply_markup=keyboard.as_markup()
         )
 

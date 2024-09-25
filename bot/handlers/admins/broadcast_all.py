@@ -56,8 +56,7 @@ async def broadcast_all_all_handler(callback: CallbackQuery, state: FSMContext):
     keyboard.row(btn_cancel)
 
     await callback.message.edit_text(
-        "[1/2] Пришлите сюда сообщение, которое хотите отправить ✉️\n\n"
-        "<i>При необходимости добавления кнопок — воспользуйтесь сервисом @posted</i>",
+        "[1/2] Пришлите сюда сообщение, которое хотите отправить ✉️\n\n",
         reply_markup=keyboard.as_markup()
     )
     await state.set_state(states.BroadcastStates.get_button)
@@ -77,8 +76,7 @@ async def broadcast_all_spec_handler(callback: CallbackQuery, state: FSMContext)
     await callback.message.edit_text(
         "[1/2] Пришлите сюда сообщение, которое хотите отправить ✉️\n\n"
         "<i>Учтите, что к сообщению нельзя добавить кнопки и фотографии. "
-        "При необходимости добавления кнопок — создайте рассылку категории "
-        "«Общая» и воспользуйтесь сервисом @posted</i>",
+        "При необходимости добавления кнопок — создайте рассылку категории «Общая»",
         reply_markup=keyboard.as_markup()
     )
     await state.update_data(dict(broadcast_spec=broadcast_spec))
