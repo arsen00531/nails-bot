@@ -7,6 +7,7 @@ env.read_env()
 BOT_TOKEN = env.str("BOT_TOKEN")
 BOT_ADMINS = env.list("BOT_ADMINS", subcast=int)
 THROTTLE_RATE = env.float("THROTTLE_RATE")
+YANDEX_GEOKODER_API= env.str("YANDEX_GEOKODER_API")
 
 POSTGRESQL_HOST = env.str("POSTGRESQL_HOST")
 POSTGRESQL_PORT = env.str("POSTGRESQL_PORT")
